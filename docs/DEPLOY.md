@@ -58,6 +58,7 @@ Import `sabistackai/prep` from the PREP Vercel account. Environment variables:
 ```sh
 npm run db:start     # local Supabase on ports 553xx
 npm run db:vault     # point the local DB at the local functions (after every db reset)
+npm run db:seed      # demo parent + nanny setup link (local only)
 npm run dev
 npm run test:db      # database checks
 ```

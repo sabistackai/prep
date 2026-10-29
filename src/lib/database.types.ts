@@ -351,14 +351,14 @@ isOneToOne: false
                   ]
                 },"tasks": {
                   Row: {
-                    "assigned_to": string,"created_at": string,"created_by": string,"done_at": string | null,"due_at": string | null,"household_id": string,"id": string,"title": string
+                    "assigned_to": string,"created_at": string,"created_by": string,"done_at": string | null,"done_by": string | null,"due_at": string | null,"household_id": string,"id": string,"title": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "assigned_to": string,"created_at"?: string,"created_by": string,"done_at"?: string | null,"due_at"?: string | null,"household_id": string,"id"?: string,"title": string
+                    "assigned_to": string,"created_at"?: string,"created_by": string,"done_at"?: string | null,"done_by"?: string | null,"due_at"?: string | null,"household_id": string,"id"?: string,"title": string
                   }
                   Update: {
-                    "assigned_to"?: string,"created_at"?: string,"created_by"?: string,"done_at"?: string | null,"due_at"?: string | null,"household_id"?: string,"id"?: string,"title"?: string
+                    "assigned_to"?: string,"created_at"?: string,"created_by"?: string,"done_at"?: string | null,"done_by"?: string | null,"due_at"?: string | null,"household_id"?: string,"id"?: string,"title"?: string
                   }
                   Relationships: [
                     {
@@ -382,6 +382,18 @@ isOneToOne: false
     },{
       foreignKeyName: "tasks_created_by_fkey"
       columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tasks_done_by_fkey"
+      columns: ["done_by"]
+isOneToOne: false
+      referencedRelation: "member_names"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tasks_done_by_fkey"
+      columns: ["done_by"]
 isOneToOne: false
       referencedRelation: "members"
       referencedColumns: ["id"]
@@ -454,6 +466,7 @@ isOneToOne: false
 "created_at": string,
 "created_by": string,
 "done_at": string | null,
+"done_by": string | null,
 "due_at": string | null,
 "household_id": string,
 "id": string,
@@ -467,6 +480,9 @@ isOneToOne: false
       } },
 "create_household":
 { Args: { "p_display_name": string,"p_name": string,"p_phone"?: string }; Returns: string
+                           },
+"create_task":
+{ Args: { "p_assigned_to": string,"p_due_local"?: string,"p_title": string }; Returns: string
                            },
 "mark_notifications_read":
 { Args: { "p_ids": (string)[] }; Returns: undefined

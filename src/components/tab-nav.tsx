@@ -17,14 +17,14 @@ export function TabNav({ tabs }: { tabs: Tab[] }) {
         {tabs.map((tab) => {
           const active = tab.href === root ? path === root : path.startsWith(tab.href);
           return (
-            <li key={tab.href} className="flex-1">
+            <li key={tab.href} className="flex-auto">
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className="flex min-h-14 items-center justify-center text-sm font-bold"
+                className="flex min-h-14 items-center justify-center text-[13px] font-bold min-[360px]:text-sm"
               >
                 <span
-                  className={`rounded-full px-4 py-1.5 ${
+                  className={`rounded-full px-2 py-1.5 sm:px-4 ${
                     active ? "bg-primary-soft text-primary" : "text-muted hover:text-text"
                   }`}
                 >

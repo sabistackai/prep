@@ -37,3 +37,16 @@ export function parseList(value: FormDataEntryValue | null) {
     .map((s) => s.trim())
     .filter(Boolean);
 }
+
+const dueFormat = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+  timeZone: "Africa/Lagos",
+});
+
+// ISO timestamp -> "Sat 6:00 PM" (Lagos time)
+export function formatDue(iso: string) {
+  return dueFormat.format(new Date(iso)).replace(",", "");
+}

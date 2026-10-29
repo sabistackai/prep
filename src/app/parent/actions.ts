@@ -236,3 +236,40 @@ export async function removeNanny(formData: FormData) {
   await supabase.from("members").delete().eq("id", nanny.id);
   done();
 }
+
+// Tasks -------------------------------------------------------------------------
+
+export async function createTask(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireParent();
+  const title = str(formData, "title");
+  const date = str(formData, "due_date");
+  const time = str(formData, "due_time");
+  if (!title) return { error: "Say what the task is." };
+  if (!date && time) return { error: "Pick a day for the due time, or clear the time." };
+
+  const { error } = await supabase.rpc("create_task", {
+    p_assigned_to: str(formData, "assigned_to"),
+    p_title: title,
+    p_due_local: date ? `${date} ${time || "18:00"}` : undefined,
+  });
+  if (error) return { error: error.message };
+  return done("Sent. It's on the nanny's phone now.");
+}
+
+export async function markTaskDone(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.rpc("complete_task", { p_task_id: str(formData, "id") });
+  done();
+}
+
+export async function reopenTask(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.from("tasks").update({ done_at: null, done_by: null }).eq("id", str(formData, "id"));
+  done();
+}
+
+export async function deleteTask(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.from("tasks").delete().eq("id", str(formData, "id"));
+  done();
+}

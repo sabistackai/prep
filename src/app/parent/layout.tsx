@@ -6,6 +6,7 @@ const tabs = [
   { href: "/parent", label: "Today" },
   { href: "/parent/routine", label: "Routine" },
   { href: "/parent/activities", label: "Activities" },
+  { href: "/parent/tasks", label: "Tasks" },
   { href: "/parent/settings", label: "Settings" },
 ];
 
