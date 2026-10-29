@@ -1,0 +1,35 @@
+"use client";
+
+import { useState } from "react";
+
+// Shows a link with Share (phone share sheet) or Copy, whichever the browser supports.
+export function ShareLink({ url, text }: { url: string; text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function share() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ text, url });
+        return;
+      } catch {
+        // Cancelled or unsupported: fall back to copying.
+      }
+    }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <code className="min-w-0 flex-1 truncate rounded-lg bg-canvas px-3 py-2 font-mono text-xs text-muted">{url}</code>
+      <button
+        type="button"
+        onClick={share}
+        className="min-h-11 shrink-0 rounded-xl border border-line bg-raised px-4 text-sm hover:border-muted"
+      >
+        {copied ? "Copied" : "Share"}
+      </button>
+    </div>
+  );
+}

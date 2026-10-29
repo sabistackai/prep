@@ -43,12 +43,19 @@ exception when insufficient_privilege then
   return 0;
 end $$;
 
-grant execute on all functions in schema pg_temp to authenticated;
+grant execute on all functions in schema pg_temp to authenticated, service_role;
+
+create function pg_temp.act_as_server() returns void language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', '{"role":"service_role"}', true);
+  perform set_config('role', 'service_role', true);
+end $$;
+grant execute on function pg_temp.act_as_server() to authenticated, service_role;
 
 insert into auth.users (id, email) values
-  ('00000000-0000-0000-0000-00000000000a', 'mrs.okafor@example.com'),
-  ('00000000-0000-0000-0000-00000000000b', '2348030000000@nanny.prep.app'),
-  ('00000000-0000-0000-0000-00000000000c', 'other.parent@example.com');
+  ('00000000-0000-0000-0000-00000000000a', 'rls-test-parent@example.invalid'),
+  ('00000000-0000-0000-0000-00000000000b', 'rls-test-nanny@example.invalid'),
+  ('00000000-0000-0000-0000-00000000000c', 'rls-test-other@example.invalid');
 
 do $test$
 declare
@@ -200,5 +207,62 @@ begin
     'parent cannot delete a parent row');
 end
 $test$;
+
+-- PIN lockout ------------------------------------------------------------------
+do $pin$
+declare
+  v_phone constant text := '+2340000000001';
+  v_house uuid;
+  s text;
+  n int;
+begin
+  perform pg_temp.act_as_admin();
+  insert into public.households (name) values ('PIN test') returning id into v_house;
+  insert into public.members (household_id, role, display_name, phone)
+  values (v_house, 'nanny', 'Pin Nanny', v_phone);
+
+  perform pg_temp.act_as('00000000-0000-0000-0000-00000000000b');
+  perform pg_temp.check(pg_temp.fails(format($$select public.pin_attempt_start(%L)$$, v_phone)),
+    'signed-in users cannot call the lockout functions');
+  perform pg_temp.check(pg_temp.fails(format($$select public.pin_attempts_reset(%L)$$, v_phone)),
+    'signed-in users cannot clear a lockout');
+
+  perform pg_temp.act_as_server();
+  for i in 1..5 loop
+    s := public.pin_attempt_start(v_phone);
+  end loop;
+  perform pg_temp.check(s = 'ok', 'first 5 attempts are allowed');
+  perform pg_temp.check(public.pin_attempt_failed(v_phone) = 'paused', '5th wrong PIN pauses sign-in');
+  perform pg_temp.check(public.pin_attempt_start(v_phone) = 'paused', 'attempts are refused while paused');
+
+  perform pg_temp.act_as_admin();
+  update private.login_attempts set paused_until = now() - interval '1 second' where login_attempts.phone = v_phone;
+  perform pg_temp.act_as_server();
+  for i in 1..5 loop
+    s := public.pin_attempt_start(v_phone);
+  end loop;
+  perform pg_temp.check(s = 'ok', 'attempts resume after the 15-minute pause');
+  perform pg_temp.check(public.pin_attempt_failed(v_phone) = 'locked', '10th wrong PIN in a day locks sign-in');
+
+  perform pg_temp.act_as_admin();
+  update private.login_attempts set window_started_at = now() - interval '25 hours' where login_attempts.phone = v_phone;
+  perform pg_temp.act_as_server();
+  perform pg_temp.check(public.pin_attempt_start(v_phone) = 'locked', 'a lock does not expire on its own');
+
+  perform public.pin_attempts_reset(v_phone);
+  perform pg_temp.check(public.pin_attempt_start(v_phone) = 'ok', 'a new setup link (reset) lifts the lock');
+
+  perform public.pin_attempts_reset(v_phone);
+  for i in 1..5 loop
+    s := public.pin_attempt_start(v_phone);
+  end loop;
+  perform pg_temp.check(public.pin_attempt_start(v_phone) = 'paused',
+    'parallel attempts are capped at 5 even before any result comes back');
+
+  perform pg_temp.act_as_admin();
+  select count(*) into n from public.security_events where household_id = v_house;
+  perform pg_temp.check(n = 3, 'each pause and lock is recorded for the parents');
+end
+$pin$;
 
 rollback;
