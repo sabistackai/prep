@@ -16,6 +16,15 @@ function str(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+// Tonight's prep ---------------------------------------------------------------
+
+export async function rebuildTonight(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireParent();
+  const { error } = await supabase.rpc("rebuild_prep_session", { p_session_id: str(formData, "id") });
+  if (error) return { error: "Couldn't rebuild the list. Please try again." };
+  return done("Tonight's list now matches the routine. Ticked items were kept.");
+}
+
 // Children --------------------------------------------------------------------
 
 export async function saveChild(_: FormState, formData: FormData): Promise<FormState> {

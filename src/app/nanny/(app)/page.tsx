@@ -1,27 +1,35 @@
-import { Card, PageHeader } from "@/components/ui";
+import Link from "next/link";
+import { PrepBoard } from "@/components/prep-board";
+import { Card, Mono, PageHeader } from "@/components/ui";
 import { requireNanny } from "@/lib/auth";
+import { dayName, loadPrep } from "@/lib/prep";
 
-// Week 2: tonight's checklist cards with tick boxes.
 export default async function NannyPrepPage() {
   const { supabase } = await requireNanny();
-  const { data: kids } = await supabase.from("children").select("id, name, color").order("sort");
+  const { overview, kids, items } = await loadPrep(supabase);
+  const session = overview?.session;
 
   return (
     <>
-      <PageHeader title="Tonight's prep" />
-      <Card>
-        <p className="text-muted">Tomorrow&apos;s checklist will appear here every evening.</p>
-        {kids && kids.length > 0 && (
-          <ul className="mt-3 flex flex-wrap gap-3 text-sm">
-            {kids.map((c) => (
-              <li key={c.id} className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full" style={{ background: c.color }} />
-                {c.name}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
+      <PageHeader title={session ? `Prep for ${dayName(session.for_date)}` : "Tonight's prep"} />
+
+      {session ? (
+        <PrepBoard session={session} items={items} kids={kids} canTick />
+      ) : (
+        <Card>
+          <p>
+            {overview?.tomorrow ? `${overview.tomorrow}'s` : "Tomorrow's"} checklist arrives at{" "}
+            <Mono>{overview?.release_time}</Mono>. It&apos;s due by <Mono>{overview?.deadline_time}</Mono>.
+          </p>
+          <p className="mt-3 text-sm text-muted">
+            Make sure{" "}
+            <Link href="/nanny/notifications" className="text-lime hover:underline">
+              notifications are on
+            </Link>{" "}
+            so you don&apos;t miss it.
+          </p>
+        </Card>
+      )}
     </>
   );
 }

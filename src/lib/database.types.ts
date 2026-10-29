@@ -125,14 +125,14 @@ isOneToOne: false
                   ]
                 },"notifications": {
                   Row: {
-                    "body": string,"channels": (string)[],"dedupe_key": string,"household_id": string,"id": string,"kind": string,"link": string | null,"member_id": string,"read_at": string | null,"sent_at": string,"title": string
+                    "attempts": number,"body": string,"channels": (string)[],"dedupe_key": string,"delivered_at": string | null,"delivery": Json | null,"household_id": string,"id": string,"kind": string,"link": string | null,"member_id": string,"read_at": string | null,"sent_at": string,"title": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "body": string,"channels"?: (string)[],"dedupe_key": string,"household_id": string,"id"?: string,"kind": string,"link"?: string | null,"member_id": string,"read_at"?: string | null,"sent_at"?: string,"title": string
+                    "attempts"?: number,"body": string,"channels"?: (string)[],"dedupe_key": string,"delivered_at"?: string | null,"delivery"?: Json | null,"household_id": string,"id"?: string,"kind": string,"link"?: string | null,"member_id": string,"read_at"?: string | null,"sent_at"?: string,"title": string
                   }
                   Update: {
-                    "body"?: string,"channels"?: (string)[],"dedupe_key"?: string,"household_id"?: string,"id"?: string,"kind"?: string,"link"?: string | null,"member_id"?: string,"read_at"?: string | null,"sent_at"?: string,"title"?: string
+                    "attempts"?: number,"body"?: string,"channels"?: (string)[],"dedupe_key"?: string,"delivered_at"?: string | null,"delivery"?: Json | null,"household_id"?: string,"id"?: string,"kind"?: string,"link"?: string | null,"member_id"?: string,"read_at"?: string | null,"sent_at"?: string,"title"?: string
                   }
                   Relationships: [
                     {
@@ -480,8 +480,20 @@ isOneToOne: false
 "pin_attempts_reset":
 { Args: { "p_phone": string }; Returns: undefined
                            },
+"prep_overview":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"rebuild_prep_session":
+{ Args: { "p_session_id": string }; Returns: undefined
+                           },
 "reset_nanny_setup":
 { Args: { "p_member_id": string }; Returns: string
+                           },
+"run_scheduler":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"send_test_notification":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "tick_item":
 { Args: { "p_checked": boolean,"p_item_id": string }; Returns: {

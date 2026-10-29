@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, Mono, PageHeader } from "@/components/ui";
 import { requireNanny } from "@/lib/auth";
 import { formatTime, weekdayName } from "@/lib/format";
@@ -13,6 +14,12 @@ export default async function NannyAlertsPage() {
   return (
     <>
       <PageHeader title="Alerts" />
+      <Link
+        href="/nanny/notifications"
+        className="mb-5 flex min-h-12 items-center justify-between rounded-xl border border-line px-4 text-sm"
+      >
+        Notification settings and test <span className="text-muted">›</span>
+      </Link>
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Weekly activities</h2>
       <div className="space-y-2">
         {(activities ?? []).map((a) => (

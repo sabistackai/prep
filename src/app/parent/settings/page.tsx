@@ -13,6 +13,7 @@ import {
   saveSettings,
 } from "@/app/parent/actions";
 import { ActionForm, SubmitButton } from "@/components/form";
+import { PushSetup } from "@/components/push-setup";
 import { ShareLink } from "@/components/share-link";
 import { Card, Field, inputClass, PageHeader } from "@/components/ui";
 import { requireParent } from "@/lib/auth";
@@ -119,6 +120,7 @@ export default async function SettingsPage() {
           ["holidays", "Holidays"],
           ["timings", "Timings & alerts"],
           ["nannies", "Nannies"],
+          ["notifications", "Notifications"],
           ["you", "Your details"],
         ].map(([id, label]) => (
           <a key={id} href={`#${id}`} className="rounded-full border border-line px-3 py-1.5 text-muted hover:text-ink">
@@ -347,6 +349,12 @@ export default async function SettingsPage() {
               </div>
               <SubmitButton>Add nanny</SubmitButton>
             </ActionForm>
+          </Card>
+        </Section>
+
+        <Section id="notifications" title="Notifications on this phone">
+          <Card>
+            <PushSetup audience="parent" />
           </Card>
         </Section>
 

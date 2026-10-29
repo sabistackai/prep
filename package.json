@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:start": "supabase start -x gotrue,realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor",
-    "db:reset": "supabase db reset",
-    "test:db": "docker exec -i supabase_db_prep psql -U postgres -v ON_ERROR_STOP=1 -q < supabase/tests/rls_test.sql"
+    "db:start": "supabase start -x imgproxy,logflare,vector,supavisor",
+    "db:reset": "supabase db reset && node scripts/local-vault.mjs",
+    "db:vault": "node scripts/local-vault.mjs",
+    "test:db": "node scripts/test-db.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -133,7 +133,7 @@ export async function completeNannySetup(_: FormState, formData: FormData): Prom
 
   const supabase = await createClient();
   await supabase.auth.signInWithPassword({ email, password });
-  redirect("/nanny");
+  redirect("/nanny/notifications");
 }
 
 export async function signOut() {
