@@ -13,6 +13,7 @@ import {
   saveSettings,
 } from "@/app/parent/actions";
 import { ActionForm, SubmitButton } from "@/components/form";
+import { PhoneGuide } from "@/components/phone-guide";
 import { PushSetup } from "@/components/push-setup";
 import { ShareLink } from "@/components/share-link";
 import { ThemeSelect } from "@/components/theme";
@@ -350,6 +351,17 @@ export default async function SettingsPage() {
         <Section id="notifications" title="Notifications on this phone">
           <Card>
             <PushSetup audience="parent" />
+          </Card>
+          <Card>
+            <details>
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-semibold">
+                Alerts not arriving? Phone settings guide <span className="text-muted">›</span>
+              </summary>
+              <div className="pt-3">
+                <PhoneGuide />
+              </div>
+            </details>
+            <p className="mt-2 text-sm text-muted">The nanny sees the same guide on their phone under Alerts → Notifications.</p>
           </Card>
         </Section>
 

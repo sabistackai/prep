@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PhoneGuide } from "@/components/phone-guide";
 import { PushSetup } from "@/components/push-setup";
 import { ThemeSelect } from "@/components/theme";
 import { Card, labelClass, PageHeader } from "@/components/ui";
@@ -11,6 +12,11 @@ export default async function NannyNotificationsPage() {
       <PageHeader title="Notifications" subtitle="Do this once on your phone." />
       <Card>
         <PushSetup audience="nanny" />
+      </Card>
+
+      <h2 className={`mt-8 mb-2 ${labelClass}`}>Make sure alerts arrive</h2>
+      <Card>
+        <PhoneGuide />
       </Card>
 
       <h2 className={`mt-8 mb-2 ${labelClass}`}>Appearance</h2>

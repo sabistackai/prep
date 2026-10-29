@@ -200,6 +200,20 @@ begin
    where n2.kind = 'test' and m.user_id = nanny;
   perform pg_temp.check(n = 1, 'test notification goes to the caller only');
 
+  perform pg_temp.act_as(nanny);
+  perform public.send_test_notification(2);
+  perform public.send_test_notification(30);   -- capped at 10 minutes, still one pending
+  perform pg_temp.act_as_admin();
+  perform pg_temp.check((select count(*) from private.scheduled_tests) = 1, 'one delayed test pending per person');
+  perform pg_temp.check((select due_at from private.scheduled_tests) = now() + interval '10 minutes',
+    'a delayed test waits at most 10 minutes');
+  perform pg_temp.check(private.send_scheduled_tests() = 0, 'a delayed test is not sent early');
+  update private.scheduled_tests set due_at = now();
+  perform pg_temp.check(private.send_scheduled_tests() = 1, 'a delayed test is sent when due');
+  select count(*) into n from public.notifications n2 join public.members m on m.id = n2.member_id
+   where n2.kind = 'test' and m.user_id = nanny;
+  perform pg_temp.check(n = 2 and not exists (select 1 from private.scheduled_tests), 'and only once');
+
   perform pg_temp.act_as('00000000-0000-0000-0000-0000000000e1');
   perform pg_temp.check(pg_temp.fails('select public.run_scheduler()'), 'users cannot run the scheduler');
 end

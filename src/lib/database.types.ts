@@ -509,7 +509,7 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "send_test_notification":
-{ Args: Record<PropertyKey, never>; Returns: undefined
+{ Args: { "p_delay_minutes"?: number }; Returns: undefined
                            },
 "tick_item":
 { Args: { "p_at"?: string,"p_checked": boolean,"p_item_id": string }; Returns: {

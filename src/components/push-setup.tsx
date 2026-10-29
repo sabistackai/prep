@@ -76,12 +76,16 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
     }
   }
 
-  async function test() {
+  async function test(delayMinutes = 0) {
     setBusy(true);
     setMessage(null);
     try {
-      await sendTestNotification();
-      setMessage("Sent. It should arrive within a few seconds, even with PREP closed.");
+      await sendTestNotification(delayMinutes);
+      setMessage(
+        delayMinutes
+          ? `A test arrives in about ${delayMinutes} minutes. Close PREP, swipe it away from your recent apps and lock the phone. If nothing comes, follow the steps below for your phone, then try again.`
+          : "Sent. It should arrive within a few seconds.",
+      );
     } catch {
       setMessage("Couldn't send the test. Check your connection and try again.");
     } finally {
@@ -158,8 +162,11 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
             Notifications are on for this phone
           </p>
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={test} disabled={busy} className={`${btn} border border-border bg-surface-2`}>
-              Send test notification
+            <button type="button" onClick={() => test(2)} disabled={busy} className={`${btn} bg-primary text-on-primary`}>
+              Test with the phone locked
+            </button>
+            <button type="button" onClick={() => test()} disabled={busy} className={`${btn} border border-border bg-surface-2`}>
+              Test now
             </button>
             <button type="button" onClick={turnOff} disabled={busy} className={`${btn} text-muted hover:text-text`}>
               Turn off

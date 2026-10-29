@@ -35,9 +35,10 @@ export async function removePushSubscription(endpoint: string) {
   await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint);
 }
 
-export async function sendTestNotification() {
+// Now, or a few minutes later so it can be checked with PREP closed and the phone locked.
+export async function sendTestNotification(delayMinutes = 0) {
   const { supabase, member } = await getSession();
   if (!member) throw new Error("Not signed in");
-  const { error } = await supabase.rpc("send_test_notification");
+  const { error } = await supabase.rpc("send_test_notification", { p_delay_minutes: delayMinutes });
   if (error) throw new Error(error.message);
 }
