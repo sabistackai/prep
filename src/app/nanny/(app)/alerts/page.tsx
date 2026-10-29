@@ -16,17 +16,17 @@ export default async function NannyAlertsPage() {
       <PageHeader title="Alerts" />
       <Link
         href="/nanny/notifications"
-        className="mb-5 flex min-h-12 items-center justify-between rounded-xl border border-line px-4 text-sm"
+        className="mb-5 flex min-h-12 items-center justify-between rounded-[10px] border border-border bg-surface px-4 text-sm font-bold"
       >
-        Notification settings and test <span className="text-muted">›</span>
+        Notifications and appearance <span className="text-muted">›</span>
       </Link>
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Weekly activities</h2>
+      <h2 className="mb-2 text-xs font-extrabold uppercase tracking-[0.12em] text-muted">Weekly activities</h2>
       <div className="space-y-2">
         {(activities ?? []).map((a) => (
           <Card key={a.id}>
             <p>
               <Mono>
-                <span className="text-lime">
+                <span className="text-primary">
                   {weekdayName(a.weekday).slice(0, 3)} {formatTime(a.start_time)}
                 </span>
               </Mono>{" "}

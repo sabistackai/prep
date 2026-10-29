@@ -63,7 +63,7 @@ export function RoutineGrid({
     <div>
       <div className="mb-3 flex items-baseline gap-2">
         <span className="size-3 rounded-full" style={{ background: child.color }} />
-        <h2 className="font-semibold">{child.name}</h2>
+        <h2 className="font-display text-lg font-semibold">{child.name}</h2>
         {child.class_name && <span className="text-sm text-muted">{child.class_name}</span>}
       </div>
 
@@ -86,8 +86,8 @@ export function RoutineGrid({
                 if (longPressed.current) return;
                 cycle(d.n);
               }}
-              className={`flex min-h-16 select-none flex-col items-center justify-center gap-1 rounded-xl border bg-raised px-0.5 text-center ${
-                picking === d.n ? "border-lime" : "border-line"
+              className={`flex min-h-16 select-none flex-col items-center justify-center gap-1 rounded-[10px] border bg-surface-2 px-0.5 text-center ${
+                picking === d.n ? "border-primary bg-primary-soft" : "border-border"
               }`}
             >
               <span className="text-[11px] font-semibold uppercase text-muted">{d.short}</span>
@@ -99,7 +99,7 @@ export function RoutineGrid({
       </div>
 
       {picking !== null && (
-        <div className="mt-3 rounded-xl border border-line bg-raised p-2">
+        <div className="mt-3 rounded-[10px] border border-border bg-surface-2 p-2">
           <p className="px-2 pb-2 text-sm text-muted">
             {WEEKDAYS[picking - 1].long} for {child.name}
           </p>
@@ -110,7 +110,7 @@ export function RoutineGrid({
                 type="button"
                 onClick={() => choose(picking, o.id)}
                 className={`flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm ${
-                  days[picking] === o.id ? "border-lime text-lime" : "border-line"
+                  days[picking] === o.id ? "border-primary bg-primary-soft text-primary" : "border-border"
                 }`}
               >
                 <span className="size-2.5 rounded-full" style={{ background: colorOf(o.id) }} />

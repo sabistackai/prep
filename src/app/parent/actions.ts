@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { FormState } from "@/components/form";
 import { requireParent } from "@/lib/auth";
+import { childColor } from "@/lib/brand";
 import { parseList } from "@/lib/format";
 import { normalizePhone } from "@/lib/phone";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -33,16 +34,24 @@ export async function saveChild(_: FormState, formData: FormData): Promise<FormS
   const row = {
     name: str(formData, "name"),
     class_name: str(formData, "class_name") || null,
-    color: str(formData, "color") || "#84CC16",
   };
   if (!row.name) return { error: "Enter the child's name." };
 
   let error;
   if (id) {
-    ({ error } = await supabase.from("children").update(row).eq("id", id));
+    ({ error } = await supabase
+      .from("children")
+      .update({ ...row, color: str(formData, "color") || childColor(0) })
+      .eq("id", id));
   } else {
+    // New children get the brand palette in order (theme spec 3).
     const { count } = await supabase.from("children").select("*", { count: "exact", head: true });
-    ({ error } = await supabase.from("children").insert({ ...row, household_id: member.household_id, sort: count ?? 0 }));
+    ({ error } = await supabase.from("children").insert({
+      ...row,
+      color: childColor(count ?? 0),
+      household_id: member.household_id,
+      sort: count ?? 0,
+    }));
   }
   if (error) return { error: error.message };
   return done(id ? "Saved." : `${row.name} added. Their week starts as Uniform on school days.`);

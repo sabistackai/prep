@@ -16,8 +16,10 @@ const clock = new Intl.DateTimeFormat("en-US", {
 });
 export const formatClock = (iso: string) => clock.format(new Date(iso));
 
+const DUE_SOON_MS = 30 * 60 * 1000;
+
 // One card per child, items grouped by outfit / activity, live via Supabase Realtime.
-// The nanny ticks (canTick); parents watch.
+// The nanny ticks (canTick); parents watch. Status colours follow the theme spec's mapping.
 export function PrepBoard({
   session: initialSession,
   items: initialItems,
@@ -32,10 +34,15 @@ export function PrepBoard({
   const [items, setItems] = useState(initialItems);
   const [session, setSession] = useState(initialSession);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => setItems(initialItems), [initialItems]);
   useEffect(() => setSession(initialSession), [initialSession]);
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     const channel = supabase
@@ -93,38 +100,36 @@ export function PrepBoard({
     .filter((c) => c.total > 0);
 
   const ready = byChild.filter((c) => c.readyAt).length;
+  const overdue = session.status === "overdue";
+  const dueSoon =
+    session.status === "pending" && new Date(session.deadline_at).getTime() - now < DUE_SOON_MS;
 
   return (
     <div className="space-y-4">
-      <StatusBanner session={session} ready={ready} total={byChild.length} />
+      <StatusBanner session={session} ready={ready} total={byChild.length} dueSoon={dueSoon} />
       {error && (
-        <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
+        <p role="alert" className="rounded-[10px] bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
           {error}
         </p>
       )}
 
       {byChild.map(({ child, groups, done, total, readyAt }) => (
-        <section key={child.id} className="rounded-2xl border border-line bg-surface">
-          <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-            <h2 className="flex items-center gap-2 text-lg font-bold">
-              <span className="size-3 rounded-full" style={{ background: child.color }} />
-              {child.name}
-            </h2>
-            {readyAt ? (
-              <span className="rounded-full bg-lime px-3 py-1 text-xs font-bold text-lime-ink">
-                Ready <span className="font-mono">{formatClock(readyAt)}</span>
-              </span>
-            ) : (
-              <span className="font-mono text-sm text-muted">
-                {done} of {total}
-              </span>
-            )}
+        <section key={child.id} className="rounded-[16px] border border-border bg-surface shadow-sm shadow-text/5 dark:shadow-none">
+          <header className="space-y-3 border-b border-border px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="flex items-center gap-3">
+                <Avatar name={child.name} color={child.color} />
+                <span className="font-display text-xl font-semibold">{child.name}</span>
+              </h2>
+              <ChildBadge done={done} total={total} readyAt={readyAt} overdue={overdue} />
+            </div>
+            <Progress done={done} total={total} overdue={overdue} />
           </header>
 
-          <div className="divide-y divide-line">
+          <div className="divide-y divide-border">
             {groups.map((group) => (
               <div key={group.label} className="px-4 py-3">
-                <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">{group.label}</h3>
+                <h3 className="mb-1 text-xs font-extrabold uppercase tracking-[0.12em] text-muted">{group.label}</h3>
                 <ul>
                   {group.items.map((item) =>
                     canTick ? (
@@ -135,30 +140,18 @@ export function PrepBoard({
                           aria-pressed={!!item.checked_at}
                           className="flex min-h-14 w-full items-center gap-4 text-left"
                         >
-                          <span
-                            className={`grid size-8 shrink-0 place-items-center rounded-lg border-2 text-lg font-bold transition ${
-                              item.checked_at ? "border-lime bg-lime text-lime-ink" : "border-line"
-                            }`}
-                          >
-                            {item.checked_at ? "✓" : ""}
-                          </span>
-                          <span className={`text-base ${item.checked_at ? "text-muted line-through" : ""}`}>
+                          <TickBox checked={!!item.checked_at} size="lg" />
+                          <span className={`text-base font-semibold ${item.checked_at ? "text-muted line-through" : ""}`}>
                             {item.label}
                           </span>
                         </button>
                       </li>
                     ) : (
                       <li key={item.id} className="flex min-h-9 items-center gap-3 text-sm">
-                        <span
-                          className={`grid size-5 shrink-0 place-items-center rounded border text-xs ${
-                            item.checked_at ? "border-lime bg-lime text-lime-ink" : "border-line"
-                          }`}
-                        >
-                          {item.checked_at ? "✓" : ""}
-                        </span>
+                        <TickBox checked={!!item.checked_at} size="sm" />
                         <span className={item.checked_at ? "text-muted" : ""}>{item.label}</span>
                         {item.checked_at && (
-                          <span className="ml-auto font-mono text-xs text-muted">{formatClock(item.checked_at)}</span>
+                          <span className="ml-auto text-xs tabular-nums text-muted">{formatClock(item.checked_at)}</span>
                         )}
                       </li>
                     ),
@@ -173,33 +166,101 @@ export function PrepBoard({
   );
 }
 
-function StatusBanner({ session, ready, total }: { session: Session; ready: number; total: number }) {
+// Child colours are light enough for ink text in both themes.
+function Avatar({ name, color }: { name: string; color: string }) {
+  return (
+    <span
+      aria-hidden
+      className="grid size-9 place-items-center rounded-full font-display text-base font-semibold text-on-accent"
+      style={{ background: color }}
+    >
+      {name.slice(0, 1).toUpperCase()}
+    </span>
+  );
+}
+
+// Unticked: border outline. Ticked: marigold fill with an ink tick, like the logo's bowl.
+function TickBox({ checked, size }: { checked: boolean; size: "sm" | "lg" }) {
+  const box = size === "lg" ? "size-[26px] rounded-lg text-base" : "size-5 rounded-md text-xs";
+  return (
+    <span
+      aria-hidden
+      className={`grid shrink-0 place-items-center border-2 font-extrabold transition ${box} ${
+        checked ? "border-accent bg-accent text-on-accent" : "border-border"
+      }`}
+    >
+      {checked ? "✓" : ""}
+    </span>
+  );
+}
+
+function ChildBadge({ done, total, readyAt, overdue }: { done: number; total: number; readyAt: string | null; overdue: boolean }) {
+  const base = "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold tabular-nums";
+  if (readyAt) {
+    return (
+      <span className={`${base} bg-success-soft text-success`}>
+        ✓ Ready {formatClock(readyAt)}
+      </span>
+    );
+  }
+  if (overdue) {
+    return (
+      <span className={`${base} bg-danger-soft text-danger`}>
+        ! {done} of {total}
+      </span>
+    );
+  }
+  if (done === 0) return <span className={`${base} bg-surface-2 text-muted`}>Not started</span>;
+  return (
+    <span className={`${base} bg-accent-soft text-accent-text`}>
+      {done} of {total}
+    </span>
+  );
+}
+
+function Progress({ done, total, overdue }: { done: number; total: number; overdue: boolean }) {
+  const complete = done === total;
+  const fill = complete ? "bg-success" : overdue ? "bg-danger" : "bg-accent";
+  return (
+    <div
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={total}
+      aria-valuenow={done}
+      className="h-2 overflow-hidden rounded-full bg-surface-2"
+    >
+      <div className={`h-full rounded-full transition-all ${fill}`} style={{ width: `${(done / total) * 100}%` }} />
+    </div>
+  );
+}
+
+function StatusBanner({ session, ready, total, dueSoon }: { session: Session; ready: number; total: number; dueSoon: boolean }) {
+  const base = "rounded-[10px] px-4 py-3 text-sm font-bold tabular-nums";
   if (session.status === "complete") {
     return (
-      <p className="rounded-xl border border-lime/40 bg-lime/10 px-4 py-3 font-semibold text-lime">
-        Everyone is ready
-        {session.completed_at && (
-          <>
-            {" "}
-            · <span className="font-mono">{formatClock(session.completed_at)}</span>
-          </>
-        )}
+      <p className={`${base} bg-success-soft text-success`}>
+        ✓ Everyone is ready{session.completed_at && ` · ${formatClock(session.completed_at)}`}
       </p>
     );
   }
   if (session.status === "overdue") {
     return (
-      <p className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-3 font-semibold text-danger">
-        Overdue: {ready} of {total} ready. The deadline was <span className="font-mono">{formatClock(session.deadline_at)}</span>.
+      <p className={`${base} bg-danger-soft text-danger`}>
+        {`! Overdue: ${ready} of ${total} ready. The deadline was ${formatClock(session.deadline_at)}.`}
+      </p>
+    );
+  }
+  if (dueSoon) {
+    return (
+      <p className={`${base} bg-warning-soft text-warning`}>
+        {`◷ Due soon: ${ready} of ${total} ready, due by ${formatClock(session.deadline_at)}`}
       </p>
     );
   }
   return (
-    <p className="rounded-xl border border-line bg-raised px-4 py-3 text-sm">
-      <span className="font-semibold">
-        {ready} of {total} ready
-      </span>{" "}
-      · due by <span className="font-mono">{formatClock(session.deadline_at)}</span>
+    <p className={`${base} bg-surface-2 text-text`}>
+      <span className="font-display text-base font-semibold">{`${ready} of ${total} ready`}</span>
+      <span className="font-semibold text-muted">{` · due by ${formatClock(session.deadline_at)}`}</span>
     </p>
   );
 }

@@ -22,11 +22,11 @@ export function ShareLink({ url, text }: { url: string; text: string }) {
 
   return (
     <div className="flex items-center gap-2">
-      <code className="min-w-0 flex-1 truncate rounded-lg bg-canvas px-3 py-2 font-mono text-xs text-muted">{url}</code>
+      <code className="min-w-0 flex-1 truncate rounded-lg bg-surface-2 px-3 py-2 tabular-nums text-xs text-muted">{url}</code>
       <button
         type="button"
         onClick={share}
-        className="min-h-11 shrink-0 rounded-xl border border-line bg-raised px-4 text-sm hover:border-muted"
+        className="min-h-11 shrink-0 rounded-[10px] border border-border bg-surface-2 px-4 text-sm font-bold hover:border-primary"
       >
         {copied ? "Copied" : "Share"}
       </button>

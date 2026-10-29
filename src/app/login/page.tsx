@@ -39,13 +39,13 @@ export default async function LoginPage({
       <div className="mt-6 space-y-3 text-sm text-muted">
         <p>
           {signingUp ? "Already have an account? " : "New to PREP? "}
-          <Link href={signingUp ? "/login" : "/login?mode=signup"} className="text-lime underline-offset-4 hover:underline">
+          <Link href={signingUp ? "/login" : "/login?mode=signup"} className="font-semibold text-primary underline-offset-4 hover:underline">
             {signingUp ? "Sign in" : "Create an account"}
           </Link>
         </p>
         <p>
           Nanny?{" "}
-          <Link href="/nanny/login" className="text-lime underline-offset-4 hover:underline">
+          <Link href="/nanny/login" className="font-semibold text-primary underline-offset-4 hover:underline">
             Sign in with your phone
           </Link>
         </p>

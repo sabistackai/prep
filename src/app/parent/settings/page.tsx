@@ -15,8 +15,10 @@ import {
 import { ActionForm, SubmitButton } from "@/components/form";
 import { PushSetup } from "@/components/push-setup";
 import { ShareLink } from "@/components/share-link";
+import { ThemeSelect } from "@/components/theme";
 import { Card, Field, inputClass, PageHeader } from "@/components/ui";
 import { requireParent } from "@/lib/auth";
+import { CHILD_COLORS } from "@/lib/brand";
 import { timeInput } from "@/lib/format";
 import type { Tables } from "@/lib/database.types";
 
@@ -25,7 +27,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 function Section({ id, title, hint, children }: { id: string; title: string; hint?: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-4">
-      <h2 className="text-lg font-bold">{title}</h2>
+      <h2 className="font-display text-xl font-semibold">{title}</h2>
       {hint && <p className="mt-0.5 text-sm text-muted">{hint}</p>}
       <div className="mt-3 space-y-3">{children}</div>
     </section>
@@ -50,22 +52,30 @@ function ChildFields({ child }: { child?: Tables<"children"> }) {
   return (
     <>
       {child && <input type="hidden" name="id" value={child.id} />}
-      <div className="grid grid-cols-[1fr_7rem_3.5rem] gap-2">
+      <div className="grid grid-cols-[1fr_8rem] gap-2">
         <Field label="Name">
           <input name="name" defaultValue={child?.name} placeholder="Ada" required className={inputClass} />
         </Field>
         <Field label="Class">
           <input name="class_name" defaultValue={child?.class_name ?? ""} placeholder="JSS 2" className={inputClass} />
         </Field>
-        <Field label="Colour">
-          <input
-            name="color"
-            type="color"
-            defaultValue={child?.color ?? "#84CC16"}
-            className="h-11 w-full cursor-pointer rounded-xl border border-line bg-canvas p-1"
-          />
-        </Field>
       </div>
+      {child && (
+        <fieldset>
+          <legend className="mb-1.5 text-sm font-bold">Colour</legend>
+          <div className="flex flex-wrap gap-2">
+            {CHILD_COLORS.map((c) => (
+              <label key={c} className="cursor-pointer">
+                <input type="radio" name="color" value={c} defaultChecked={child.color === c} className="peer sr-only" />
+                <span
+                  className="block size-9 rounded-full ring-offset-2 ring-offset-surface peer-checked:ring-2 peer-checked:ring-primary peer-focus-visible:ring-2 peer-focus-visible:ring-focus"
+                  style={{ background: c }}
+                />
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
     </>
   );
 }
@@ -81,7 +91,7 @@ function OutfitFields({ outfit }: { outfit?: Tables<"outfits"> }) {
         <textarea name="items" rows={4} defaultValue={outfit?.items.join("\n")} className={`${inputClass} py-2`} />
       </Field>
       <label className="flex min-h-11 items-center gap-3 text-sm">
-        <input type="checkbox" name="is_school" defaultChecked={outfit?.is_school} className="size-5 accent-lime" />
+        <input type="checkbox" name="is_school" defaultChecked={outfit?.is_school} className="size-5 accent-primary" />
         School outfit (switches to Casual on holidays)
       </label>
     </>
@@ -92,7 +102,7 @@ function Toggle({ name, label, checked }: { name: string; label: string; checked
   return (
     <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
       {label}
-      <input type="checkbox" name={name} defaultChecked={checked} className="size-5 accent-lime" />
+      <input type="checkbox" name={name} defaultChecked={checked} className="size-5 accent-primary" />
     </label>
   );
 }
@@ -121,9 +131,10 @@ export default async function SettingsPage() {
           ["timings", "Timings & alerts"],
           ["nannies", "Nannies"],
           ["notifications", "Notifications"],
+          ["appearance", "Appearance"],
           ["you", "Your details"],
         ].map(([id, label]) => (
-          <a key={id} href={`#${id}`} className="rounded-full border border-line px-3 py-1.5 text-muted hover:text-ink">
+          <a key={id} href={`#${id}`} className="rounded-full border border-border px-3 py-1.5 text-muted hover:text-text">
             {label}
           </a>
         ))}
@@ -141,7 +152,7 @@ export default async function SettingsPage() {
             </Card>
           ))}
           <Card>
-            <h3 className="mb-3 font-semibold">Add a child</h3>
+            <h3 className="mb-3 font-display text-lg font-semibold">Add a child</h3>
             <ActionForm action={saveChild} className="space-y-3">
               <ChildFields />
               <SubmitButton>Add child</SubmitButton>
@@ -161,7 +172,7 @@ export default async function SettingsPage() {
                   </span>
                   <span className="text-sm text-muted">Edit</span>
                 </summary>
-                <ActionForm action={saveOutfit} className="mt-3 space-y-3 border-t border-line pt-3">
+                <ActionForm action={saveOutfit} className="mt-3 space-y-3 border-t border-border pt-3">
                   <OutfitFields outfit={o} />
                   <SubmitButton variant="secondary">Save</SubmitButton>
                 </ActionForm>
@@ -195,7 +206,7 @@ export default async function SettingsPage() {
             <Card key={h.id} className="flex items-center justify-between gap-3">
               <span>
                 <span className="font-semibold">{h.label || "Holiday"}</span>
-                <span className="block font-mono text-sm text-muted">
+                <span className="block tabular-nums text-sm text-muted">
                   {h.starts_on === h.ends_on ? h.starts_on : `${h.starts_on} → ${h.ends_on}`}
                 </span>
               </span>
@@ -209,10 +220,10 @@ export default async function SettingsPage() {
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="First day">
-                  <input name="starts_on" type="date" required className={`${inputClass} font-mono`} />
+                  <input name="starts_on" type="date" required className={`${inputClass} tabular-nums`} />
                 </Field>
                 <Field label="Last day">
-                  <input name="ends_on" type="date" className={`${inputClass} font-mono`} />
+                  <input name="ends_on" type="date" className={`${inputClass} tabular-nums`} />
                 </Field>
               </div>
               <SubmitButton>Add holiday</SubmitButton>
@@ -231,7 +242,7 @@ export default async function SettingsPage() {
                       type="time"
                       defaultValue={timeInput(household.prep_release_time)}
                       required
-                      className={`${inputClass} font-mono`}
+                      className={`${inputClass} tabular-nums`}
                     />
                   </Field>
                   <Field label="Reminder" hint="Optional">
@@ -239,7 +250,7 @@ export default async function SettingsPage() {
                       name="prep_nudge_time"
                       type="time"
                       defaultValue={timeInput(household.prep_nudge_time)}
-                      className={`${inputClass} font-mono`}
+                      className={`${inputClass} tabular-nums`}
                     />
                   </Field>
                   <Field label="Deadline">
@@ -248,7 +259,7 @@ export default async function SettingsPage() {
                       type="time"
                       defaultValue={timeInput(household.prep_deadline_time)}
                       required
-                      className={`${inputClass} font-mono`}
+                      className={`${inputClass} tabular-nums`}
                     />
                   </Field>
                 </div>
@@ -260,7 +271,7 @@ export default async function SettingsPage() {
                       min={0}
                       max={720}
                       defaultValue={household.activity_lead_minutes}
-                      className={`${inputClass} font-mono`}
+                      className={`${inputClass} tabular-nums`}
                     />
                   </Field>
                   <Field label="Travel time" hint="Minutes, for the leave-by time">
@@ -270,11 +281,11 @@ export default async function SettingsPage() {
                       min={0}
                       max={240}
                       defaultValue={household.leave_buffer_minutes}
-                      className={`${inputClass} font-mono`}
+                      className={`${inputClass} tabular-nums`}
                     />
                   </Field>
                 </div>
-                <div className="divide-y divide-line border-y border-line">
+                <div className="divide-y divide-border border-y border-border">
                   <Toggle
                     name="notify_parents_all_ready"
                     label="Tell me when everyone is ready"
@@ -295,7 +306,7 @@ export default async function SettingsPage() {
               </ActionForm>
             </Card>
             {household.sms_backup && parents.some((p) => !p.phone) && (
-              <p className="text-sm text-warn">
+              <p className="text-sm text-warning">
                 {parents
                   .filter((p) => !p.phone)
                   .map((p) => p.display_name)
@@ -313,9 +324,9 @@ export default async function SettingsPage() {
               <div className="flex items-center justify-between gap-3">
                 <span>
                   <span className="font-semibold">{n.display_name}</span>
-                  <span className="block font-mono text-sm text-muted">{n.phone}</span>
+                  <span className="block tabular-nums text-sm text-muted">{n.phone}</span>
                 </span>
-                <span className={`text-xs font-semibold ${n.user_id && !n.setup_token ? "text-lime" : "text-warn"}`}>
+                <span className={`rounded-full px-3 py-1 text-xs font-extrabold ${n.user_id && !n.setup_token ? "bg-success-soft text-success" : "bg-warning-soft text-warning"}`}>
                   {n.setup_token ? (n.user_id ? "New link sent" : "Waiting for setup") : "Set up"}
                 </span>
               </div>
@@ -337,7 +348,7 @@ export default async function SettingsPage() {
             </Card>
           ))}
           <Card>
-            <h3 className="mb-3 font-semibold">Add a nanny</h3>
+            <h3 className="mb-3 font-display text-lg font-semibold">Add a nanny</h3>
             <ActionForm action={addNanny} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Name">
@@ -356,6 +367,10 @@ export default async function SettingsPage() {
           <Card>
             <PushSetup audience="parent" />
           </Card>
+        </Section>
+
+        <Section id="appearance" title="Appearance" hint="System follows your phone's light or dark setting.">
+          <ThemeSelect />
         </Section>
 
         <Section id="you" title="Your details">

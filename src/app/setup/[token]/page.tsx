@@ -25,7 +25,7 @@ export default async function NannySetupPage({ params }: { params: Promise<{ tok
     );
   }
 
-  const pinInput = `${inputClass} font-mono tracking-[0.5em]`;
+  const pinInput = `${inputClass} tabular-nums tracking-[0.5em]`;
   return (
     <AuthShell
       title={`Welcome, ${member.display_name}`}

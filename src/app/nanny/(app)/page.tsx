@@ -23,7 +23,7 @@ export default async function NannyPrepPage() {
           </p>
           <p className="mt-3 text-sm text-muted">
             Make sure{" "}
-            <Link href="/nanny/notifications" className="text-lime hover:underline">
+            <Link href="/nanny/notifications" className="font-semibold text-primary hover:underline">
               notifications are on
             </Link>{" "}
             so you don&apos;t miss it.

@@ -20,14 +20,14 @@ export default function NannyLoginPage() {
             maxLength={6}
             autoComplete="current-password"
             required
-            className={`${inputClass} font-mono tracking-[0.5em]`}
+            className={`${inputClass} tabular-nums tracking-[0.5em]`}
           />
         </Field>
         <SubmitButton className="w-full">Sign in</SubmitButton>
       </ActionForm>
       <p className="mt-6 text-sm text-muted">
         Forgot your PIN? Ask Madam or Oga to send you a new setup link.{" "}
-        <Link href="/login" className="text-lime underline-offset-4 hover:underline">
+        <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
           Parent sign in
         </Link>
       </p>

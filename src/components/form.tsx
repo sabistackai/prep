@@ -26,7 +26,7 @@ export function ActionForm({
         </p>
       )}
       {state?.ok && (
-        <p role="status" className="text-sm text-lime">
+        <p role="status" className="text-sm font-semibold text-success">
           {state.ok}
         </p>
       )}
@@ -35,10 +35,10 @@ export function ActionForm({
 }
 
 const variants = {
-  primary: "bg-lime text-lime-ink font-semibold hover:brightness-110",
-  secondary: "border border-line bg-raised text-ink hover:border-muted",
-  danger: "border border-danger/40 text-danger hover:bg-danger/10",
-  ghost: "text-muted hover:text-ink",
+  primary: "bg-primary text-on-primary hover:opacity-90",
+  secondary: "border border-border bg-surface-2 text-text hover:border-primary",
+  danger: "border border-danger text-danger hover:bg-danger-soft",
+  ghost: "text-muted hover:text-text",
 };
 
 export function SubmitButton({
@@ -61,7 +61,7 @@ export function SubmitButton({
       name={name}
       value={value}
       disabled={pending}
-      className={`min-h-11 rounded-xl px-4 text-sm transition disabled:opacity-50 ${variants[variant]} ${className}`}
+      className={`min-h-11 rounded-[10px] px-4 text-sm font-bold transition disabled:opacity-50 ${variants[variant]} ${className}`}
     >
       {pending ? "Saving…" : children}
     </button>

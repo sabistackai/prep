@@ -1,30 +1,114 @@
 @import "tailwindcss";
 
-@theme {
-  --color-canvas: #0a0f14;
-  --color-surface: #111820;
-  --color-raised: #18212b;
-  --color-line: #253140;
-  --color-ink: #e6edf3;
-  --color-muted: #8b98a8;
-  --color-lime: #84cc16;
-  --color-lime-ink: #0a0f14;
-  --color-danger: #f87171;
-  --color-warn: #fbbf24;
+/* PREP brand theme: docs/design/PREP-theme-spec.md. Components use these tokens only. */
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #F5F6FB;
+  --surface: #FFFFFF;
+  --surface-2: #EEF1FB;
+  --border: #DDE1F0;
+  --text: #141A3D;
+  --text-muted: #545B7A;
+  --primary: #22307A;
+  --on-primary: #FFFFFF;
+  --primary-soft: #E3E7F8;
+  --accent: #F4B740;
+  --on-accent: #141A3D;
+  --accent-soft: #FDF1D6;
+  --accent-text: #8A5A00;
+  --success: #147A3A; /* spec #15803D, darkened to pass 4.5:1 on --success-soft */
+  --success-soft: #DCF5E5;
+  --warning: #B93E0B; /* spec #C2410C, darkened to pass 4.5:1 on --warning-soft */
+  --warning-soft: #FDE7DA;
+  --danger: #B91C1C;
+  --danger-soft: #FCE2E2;
+  --focus: #22307A;
+
+  /* Logo: light-background variant (spec 6.1). The tick is always indigo on marigold. */
+  --brand-indigo: #22307A;
+  --mark-stem: #22307A;
+  --mark-lines: #22307A;
+  --mark-lines-opacity: 0.45;
+  --wordmark: #22307A;
+  color-scheme: light;
 }
 
-html {
+.dark {
+  --bg: #0E1330;
+  --surface: #161C42;
+  --surface-2: #1E2552;
+  --border: #2B3366;
+  --text: #EEF0FA;
+  --text-muted: #A9B0D6;
+  --primary: #A5ADE8;
+  --on-primary: #141A3D;
+  --primary-soft: #262E66;
+  --accent: #F4B740;
+  --on-accent: #141A3D;
+  --accent-soft: #3A3320;
+  --accent-text: #F4B740;
+  --success: #4ADE80;
+  --success-soft: #163A2A;
+  --warning: #FDBA74;
+  --warning-soft: #3D2618;
+  --danger: #F87171;
+  --danger-soft: #3F1D24;
+  --focus: #F4B740;
+
+  /* Logo: dark-background variant (spec 6.2) */
+  --mark-stem: #FFFFFF;
+  --mark-lines: #8E97CC;
+  --mark-lines-opacity: 1;
+  --wordmark: #FFFFFF;
   color-scheme: dark;
 }
 
+/* The logo on an indigo panel always uses the dark-background variant. */
+.on-indigo {
+  --mark-stem: #FFFFFF;
+  --mark-lines: #8E97CC;
+  --mark-lines-opacity: 1;
+  --wordmark: #FFFFFF;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-display: var(--font-fredoka), "Nunito Sans", system-ui, sans-serif;
+  --font-sans: var(--font-nunito-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius-card: 16px;
+  --radius-control: 10px;
+}
+
 body {
-  background: var(--color-canvas);
-  color: var(--color-ink);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 input,

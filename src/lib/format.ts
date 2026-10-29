@@ -1,3 +1,5 @@
+import { CHILD_COLORS } from "@/lib/brand";
+
 export const WEEKDAYS = [
   { n: 1, short: "Mon", long: "Monday" },
   { n: 2, short: "Tue", long: "Tuesday" },
@@ -8,8 +10,8 @@ export const WEEKDAYS = [
   { n: 7, short: "Sun", long: "Sunday" },
 ] as const;
 
-// Routine grid colours, assigned to outfits in their sort order.
-export const OUTFIT_COLORS = ["#84CC16", "#38BDF8", "#F59E0B", "#A78BFA", "#94A3B8", "#F472B6", "#2DD4BF"];
+// Routine grid colours, assigned to outfits in their sort order (the brand data palette).
+export const OUTFIT_COLORS = CHILD_COLORS;
 
 export function weekdayName(n: number) {
   return WEEKDAYS.find((d) => d.n === n)?.long ?? "";

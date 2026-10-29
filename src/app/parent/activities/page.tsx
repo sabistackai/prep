@@ -42,7 +42,7 @@ function ActivityFields({ kids, activity }: { kids: Child[]; activity?: Tables<"
             type="time"
             defaultValue={timeInput(activity?.start_time) || "08:00"}
             required
-            className={`${inputClass} font-mono`}
+            className={`${inputClass} tabular-nums`}
           />
         </Field>
       </div>
@@ -73,7 +73,7 @@ export default async function ActivitiesPage() {
         <Card>
           <p className="text-sm text-muted">
             Add the children first.{" "}
-            <Link href="/parent/settings#children" className="text-lime hover:underline">
+            <Link href="/parent/settings#children" className="font-semibold text-primary hover:underline">
               Add children
             </Link>
           </p>
@@ -92,7 +92,7 @@ export default async function ActivitiesPage() {
       <div className="space-y-5">
         {days.map((d) => (
           <section key={d.n}>
-            <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">{d.long}</h2>
+            <h2 className="mb-2 text-xs font-extrabold uppercase tracking-[0.12em] text-muted">{d.long}</h2>
             <ul className="space-y-2">
               {activities!
                 .filter((a) => a.weekday === d.n)
@@ -104,7 +104,7 @@ export default async function ActivitiesPage() {
                         <details>
                           <summary className="flex cursor-pointer list-none items-start gap-3">
                             <Mono>
-                              <span className="text-lime">{formatTime(a.start_time)}</span>
+                              <span className="text-primary">{formatTime(a.start_time)}</span>
                             </Mono>
                             <span className="flex-1">
                               <span className="font-semibold">{a.title}</span>
@@ -112,7 +112,7 @@ export default async function ActivitiesPage() {
                                 <span className="size-2 rounded-full" style={{ background: child?.color }} />
                                 {child?.name}
                               </span>
-                              {!a.active && <span className="ml-2 text-xs text-warn">Paused</span>}
+                              {!a.active && <span className="ml-2 text-xs text-warning">Paused</span>}
                               {a.bring.length > 0 && (
                                 <span className="mt-1 block text-sm text-muted">Bring: {a.bring.join(", ")}</span>
                               )}
@@ -120,7 +120,7 @@ export default async function ActivitiesPage() {
                             <span className="text-sm text-muted">Edit</span>
                           </summary>
 
-                          <ActionForm action={saveActivity} className="mt-4 space-y-3 border-t border-line pt-4">
+                          <ActionForm action={saveActivity} className="mt-4 space-y-3 border-t border-border pt-4">
                             <ActivityFields kids={kids} activity={a} />
                             <SubmitButton>Save</SubmitButton>
                           </ActionForm>
@@ -146,7 +146,7 @@ export default async function ActivitiesPage() {
       </div>
 
       <Card className="mt-6">
-        <h2 className="mb-3 font-semibold">Add an activity</h2>
+        <h2 className="mb-3 font-display text-lg font-semibold">Add an activity</h2>
         <ActionForm action={saveActivity} className="space-y-3">
           <ActivityFields kids={kids} />
           <SubmitButton>Add activity</SubmitButton>

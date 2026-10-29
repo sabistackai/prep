@@ -5,7 +5,7 @@ import { removePushSubscription, savePushSubscription, sendTestNotification } fr
 
 type State = "checking" | "unsupported" | "ios-install" | "denied" | "off" | "on";
 
-const btn = "min-h-12 rounded-xl px-5 text-sm font-semibold transition disabled:opacity-50";
+const btn = "min-h-12 rounded-[10px] px-5 text-sm font-bold transition disabled:opacity-50";
 
 function urlBase64ToUint8Array(base64: string) {
   const padded = (base64 + "=".repeat((4 - (base64.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/");
@@ -126,7 +126,7 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
       )}
 
       {state === "unsupported" && (
-        <p className="text-warn">
+        <p className="text-warning">
           This browser can&apos;t receive notifications. On Android, open PREP in Chrome. On iPhone, use Safari and add
           PREP to your home screen.
         </p>
@@ -134,7 +134,7 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
 
       {state === "denied" && (
         <div className="space-y-2">
-          <p className="text-warn">Notifications are blocked for PREP on this phone.</p>
+          <p className="text-warning">Notifications are blocked for PREP on this phone.</p>
           <p className="text-sm text-muted">
             Open your browser&apos;s settings, find Site settings → Notifications, allow this site, then come back here.
           </p>
@@ -145,7 +145,7 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
         <div className="space-y-4">
           <p>{why}</p>
           <p className="text-sm text-muted">Your phone will ask for permission. Tap Allow.</p>
-          <button type="button" onClick={turnOn} disabled={busy} className={`${btn} w-full bg-lime text-lime-ink`}>
+          <button type="button" onClick={turnOn} disabled={busy} className={`${btn} w-full bg-primary text-on-primary`}>
             {busy ? "Turning on…" : "Turn on notifications"}
           </button>
         </div>
@@ -153,15 +153,15 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
 
       {state === "on" && (
         <div className="space-y-4">
-          <p className="flex items-center gap-2 font-semibold text-lime">
-            <span className="grid size-5 place-items-center rounded-full bg-lime text-xs text-lime-ink">✓</span>
+          <p className="flex items-center gap-2 font-bold text-success">
+            <span className="grid size-5 place-items-center rounded-full bg-success-soft text-xs text-success">✓</span>
             Notifications are on for this phone
           </p>
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={test} disabled={busy} className={`${btn} border border-line bg-raised`}>
+            <button type="button" onClick={test} disabled={busy} className={`${btn} border border-border bg-surface-2`}>
               Send test notification
             </button>
-            <button type="button" onClick={turnOff} disabled={busy} className={`${btn} text-muted hover:text-ink`}>
+            <button type="button" onClick={turnOff} disabled={busy} className={`${btn} text-muted hover:text-text`}>
               Turn off
             </button>
           </div>

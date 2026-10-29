@@ -31,10 +31,10 @@ export default async function TodayPage() {
 
       {session ? (
         <section className="mb-6">
-          <h2 className="mb-3 text-lg font-bold">Prep for {dayName(session.for_date)}</h2>
+          <h2 className="mb-3 font-display text-xl font-semibold">Prep for {dayName(session.for_date)}</h2>
           <PrepBoard session={session} items={items} kids={kids} canTick={false} />
           <details className="mt-3 text-sm">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center text-muted hover:text-ink">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center text-muted hover:text-text">
               Changed the routine since the list went out?
             </summary>
             <ActionForm action={rebuildTonight} className="space-y-2 pb-2">
@@ -46,7 +46,7 @@ export default async function TodayPage() {
         </section>
       ) : (
         <Card className="mb-4">
-          <h2 className="font-semibold">Tonight&apos;s prep</h2>
+          <h2 className="font-display text-lg font-semibold">Tonight&apos;s prep</h2>
           <p className="mt-1 text-sm text-muted">
             The nanny gets {overview?.tomorrow ?? "tomorrow"}&apos;s checklist at <Mono>{overview?.release_time}</Mono>,
             due by <Mono>{overview?.deadline_time}</Mono>. You&apos;ll see their progress here live.
@@ -56,14 +56,14 @@ export default async function TodayPage() {
 
       {remaining > 0 && (
         <Card>
-          <h2 className="font-semibold">Getting started</h2>
+          <h2 className="font-display text-lg font-semibold">Getting started</h2>
           <ul className="mt-3 space-y-1">
             {steps.map((s) => (
               <li key={s.label}>
                 <Link href={s.href} className="flex min-h-11 items-center gap-3 text-sm">
                   <span
                     className={`grid size-5 place-items-center rounded-full border text-xs ${
-                      s.done ? "border-lime bg-lime text-lime-ink" : "border-line"
+                      s.done ? "border-success bg-success-soft text-success" : "border-border"
                     }`}
                   >
                     {s.done ? "✓" : ""}

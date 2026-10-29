@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { BRAND } from "@/lib/brand";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -7,12 +8,12 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Parents' Routine & Errands Planner",
     start_url: "/",
     display: "standalone",
-    background_color: "#0A0F14",
-    theme_color: "#0A0F14",
+    background_color: BRAND.lightBg,
+    theme_color: BRAND.indigo,
     icons: [
-      { src: "/icons/192", sizes: "192x192", type: "image/png" },
-      { src: "/icons/512", sizes: "512x512", type: "image/png" },
-      { src: "/icons/maskable", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }

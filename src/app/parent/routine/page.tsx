@@ -19,7 +19,7 @@ export default async function RoutinePage() {
         <Card>
           <p className="text-sm text-muted">
             Add the children first, then set each one&apos;s outfit for every day of the week.{" "}
-            <Link href="/parent/settings#children" className="text-lime hover:underline">
+            <Link href="/parent/settings#children" className="font-semibold text-primary hover:underline">
               Add children
             </Link>
           </p>
@@ -54,7 +54,7 @@ export default async function RoutinePage() {
           </li>
         ))}
         <li>
-          <Link href="/parent/settings#outfits" className="text-lime hover:underline">
+          <Link href="/parent/settings#outfits" className="font-semibold text-primary hover:underline">
             Edit outfits
           </Link>
         </li>
