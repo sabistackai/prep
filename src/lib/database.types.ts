@@ -512,7 +512,7 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "tick_item":
-{ Args: { "p_checked": boolean,"p_item_id": string }; Returns: {
+{ Args: { "p_at"?: string,"p_checked": boolean,"p_item_id": string }; Returns: {
               "checked_at": string | null,
 "checked_by": string | null,
 "child_id": string,

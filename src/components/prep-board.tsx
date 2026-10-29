@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { dequeueTick, enqueueTick, isNetworkError, readQueue } from "@/lib/offline-ticks";
 import type { Tables } from "@/lib/database.types";
 
 type Item = Pick<Tables<"prep_items">, "id" | "child_id" | "label" | "group_label" | "sort" | "checked_at">;
@@ -17,6 +18,14 @@ const clock = new Intl.DateTimeFormat("en-US", {
 export const formatClock = (iso: string) => clock.format(new Date(iso));
 
 const DUE_SOON_MS = 30 * 60 * 1000;
+const RETRY_MS = 20_000;
+
+// Show ticks still waiting in the offline queue over what the server last said.
+function withQueued<T extends Pick<Item, "id" | "checked_at">>(item: T): T {
+  const q = readQueue()[item.id];
+  if (!q) return item;
+  return { ...item, checked_at: q.checked ? (item.checked_at ?? q.at) : null };
+}
 
 // One card per child, items grouped by outfit / activity, live via Supabase Realtime.
 // The nanny ticks (canTick); parents watch. Status colours follow the theme spec's mapping.
@@ -35,9 +44,29 @@ export function PrepBoard({
   const [session, setSession] = useState(initialSession);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [offline, setOffline] = useState(false);
+  const [waiting, setWaiting] = useState(0);
+  const syncing = useRef(false);
   const supabase = useMemo(() => createClient(), []);
 
-  useEffect(() => setItems(initialItems), [initialItems]);
+  // Send queued offline ticks, oldest first; stop at the first network failure.
+  const sync = useCallback(async () => {
+    if (syncing.current) return;
+    syncing.current = true;
+    try {
+      const queued = Object.entries(readQueue()).sort(([, a], [, b]) => a.at.localeCompare(b.at));
+      for (const [id, tick] of queued) {
+        const { error } = await supabase.rpc("tick_item", { p_item_id: id, p_checked: tick.checked, p_at: tick.at });
+        if (isNetworkError(error)) break;
+        dequeueTick(id, tick); // sent, or the item no longer exists (list rebuilt)
+      }
+    } finally {
+      syncing.current = false;
+      setWaiting(Object.keys(readQueue()).length);
+    }
+  }, [supabase]);
+
+  useEffect(() => setItems(initialItems.map(withQueued)), [initialItems]);
   useEffect(() => setSession(initialSession), [initialSession]);
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 60_000);
@@ -54,7 +83,7 @@ export function PrepBoard({
           if (change.eventType === "DELETE") {
             setItems((prev) => prev.filter((i) => i.id !== (change.old as Item).id));
           } else {
-            const row = change.new as Item;
+            const row = withQueued(change.new as Item);
             setItems((prev) => (prev.some((i) => i.id === row.id) ? prev.map((i) => (i.id === row.id ? row : i)) : [...prev, row]));
           }
         },
@@ -70,16 +99,49 @@ export function PrepBoard({
     };
   }, [supabase, initialSession.id]);
 
+  useEffect(() => {
+    if (!canTick) return;
+    const update = () => {
+      setOffline(!navigator.onLine);
+      if (navigator.onLine) sync();
+    };
+    const onVisible = () => document.visibilityState === "visible" && update();
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    document.addEventListener("visibilitychange", onVisible);
+    // navigator.onLine can say "online" with no real signal, so keep retrying while ticks wait.
+    const retry = setInterval(() => Object.keys(readQueue()).length && sync(), RETRY_MS);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+      document.removeEventListener("visibilitychange", onVisible);
+      clearInterval(retry);
+    };
+  }, [canTick, sync]);
+
   async function toggle(item: Item) {
-    const checked = !item.checked_at;
-    const optimistic = checked ? new Date().toISOString() : null;
-    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked_at: optimistic } : i)));
+    const tick = { checked: !item.checked_at, at: new Date().toISOString() };
+    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked_at: tick.checked ? tick.at : null } : i)));
     setError(null);
 
-    const { error } = await supabase.rpc("tick_item", { p_item_id: item.id, p_checked: checked });
-    if (error) {
+    const queue = () => {
+      enqueueTick(item.id, tick);
+      setWaiting(Object.keys(readQueue()).length);
+    };
+    // Send queued ticks first so an older offline tap can't land after this one.
+    if (!navigator.onLine || Object.keys(readQueue()).length) {
+      queue();
+      if (navigator.onLine) sync();
+      return;
+    }
+
+    const { error } = await supabase.rpc("tick_item", { p_item_id: item.id, p_checked: tick.checked, p_at: tick.at });
+    if (isNetworkError(error)) {
+      queue();
+    } else if (error) {
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, checked_at: item.checked_at } : i)));
-      setError("That didn't save. Check your internet connection and tap again.");
+      setError("That didn't save. Please tap it again.");
     }
   }
 
@@ -107,6 +169,17 @@ export function PrepBoard({
   return (
     <div className="space-y-4">
       <StatusBanner session={session} ready={ready} total={byChild.length} dueSoon={dueSoon} />
+      {canTick && (offline || waiting > 0) && (
+        // Pinned above the tab bar so the list never moves under the nanny's thumb.
+        <p
+          role="status"
+          className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 mx-auto max-w-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-primary"
+        >
+          {offline
+            ? "You're offline. Keep ticking: ticks are saved on this phone and send when you're back online."
+            : `Sending ${waiting} saved ${waiting === 1 ? "tick" : "ticks"}…`}
+        </p>
+      )}
       {error && (
         <p role="alert" className="rounded-[10px] bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
           {error}
@@ -162,6 +235,7 @@ export function PrepBoard({
           </div>
         </section>
       ))}
+      {canTick && (offline || waiting > 0) && <div aria-hidden className="h-14" />}
     </div>
   );
 }

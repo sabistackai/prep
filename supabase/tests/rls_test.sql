@@ -118,6 +118,25 @@ begin
   select status into v_status from public.prep_sessions where id = v_session;
   perform pg_temp.check(v_status = 'pending', 'unticking reopens the session');
 
+  -- Offline replays carry the tap time; out-of-range times fall back to now.
+  perform public.tick_item(id, false) from public.prep_items where session_id = v_session;
+  perform public.tick_item(id, true, now() - interval '30 minutes') from public.prep_items
+   where session_id = v_session and id <> v_item;
+  perform public.tick_item(v_item, true, now() - interval '20 minutes');
+  perform pg_temp.check((select checked_at from public.prep_items where id = v_item) = now() - interval '20 minutes',
+    'an offline tick keeps the time it was made');
+  perform pg_temp.check((select completed_at from public.prep_sessions where id = v_session) = now() - interval '20 minutes',
+    'ready time is the last tick made, not when it reached the server');
+  perform public.tick_item(v_item, false);
+  perform public.tick_item(v_item, true, now() + interval '1 hour');
+  perform pg_temp.check((select checked_at from public.prep_items where id = v_item) = now(),
+    'a tick time in the future is ignored');
+  perform public.tick_item(v_item, false);
+  perform public.tick_item(v_item, true, now() - interval '2 days');
+  perform pg_temp.check((select checked_at from public.prep_items where id = v_item) = now(),
+    'a tick time over 12 hours old is ignored');
+  perform public.tick_item(v_item, false);
+
   perform public.complete_task(v_task);
   select count(*) into n from public.tasks where id = v_task and done_at is not null;
   perform pg_temp.check(n = 1, 'nanny can complete her task');
