@@ -18,8 +18,7 @@ Function secrets (generate fresh values for production; don't reuse the local on
 ```sh
 npx supabase secrets set \
   VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... VAPID_SUBJECT=mailto:<contact email> \
-  PREP_FUNCTIONS_SECRET=<random 32+ chars> \
-  TERMII_API_KEY=... TERMII_SENDER_ID=... TERMII_CHANNEL=generic
+  PREP_FUNCTIONS_SECRET=<random 32+ chars>
 ```
 
 Generate VAPID keys with `npx web-push generate-vapid-keys`.

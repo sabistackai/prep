@@ -19,9 +19,6 @@ export default async function OnboardingPage() {
         <Field label="Your name" hint="The nanny sees this on tasks, e.g. “New task from Mrs Okafor”.">
           <input name="display_name" placeholder="Mrs Okafor" required className={inputClass} />
         </Field>
-        <Field label="Your phone number" hint="For SMS alerts if prep isn't done by the deadline.">
-          <input name="phone" type="tel" inputMode="tel" placeholder="0803 000 0000" className={inputClass} />
-        </Field>
         <SubmitButton className="w-full">Continue</SubmitButton>
       </ActionForm>
     </AuthShell>

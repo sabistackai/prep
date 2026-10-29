@@ -134,9 +134,9 @@ begin
   perform public.run_scheduler();
   perform pg_temp.check((select status from public.prep_sessions where id = v_session) = 'overdue',
     'unfinished prep is marked overdue at the deadline');
-  select count(*) into n from public.notifications
-   where dedupe_key = 'prep_overdue:' || v_session and channels = '{push,sms}';
-  perform pg_temp.check(n = 2, 'both parents get push and SMS');
+  select count(*) into n from public.notifications n2 join public.members m on m.id = n2.member_id
+   where n2.dedupe_key = 'prep_overdue:' || v_session and m.role = 'parent' and n2.channels = '{push}';
+  perform pg_temp.check(n = 2, 'both parents get a push');
   select body into v_text from public.notifications n2 join public.members m on m.id = n2.member_id
    where n2.dedupe_key = 'prep_overdue:' || v_session and m.role = 'parent' limit 1;
   perform pg_temp.check(v_text = 'Prep for Saturday missed the 8:00 PM deadline. Ada: 1 item left. Tobi: 5 items left.',
@@ -148,13 +148,6 @@ begin
   perform public.run_scheduler();
   select count(*) into n from public.notifications where kind = 'prep_overdue' and household_id = v_house;
   perform pg_temp.check(n = 3, 'no duplicate overdue alerts on the next run');
-
-  update public.households set sms_backup = false where id = v_house;
-  v_session := private.release_prep(v_house, '2026-11-09');
-  update public.prep_sessions set deadline_at = now() - interval '1 minute' where id = v_session;
-  perform public.run_scheduler();
-  select count(*) into n from public.notifications where dedupe_key = 'prep_overdue:' || v_session and 'sms' = any (channels);
-  perform pg_temp.check(n = 0, 'no SMS when SMS backup is off');
 
   v_session := private.release_prep(v_house, '2026-11-10');
   update public.prep_sessions set deadline_at = now() - interval '3 hours' where id = v_session;

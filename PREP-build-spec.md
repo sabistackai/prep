@@ -15,7 +15,7 @@ Each child has a fixed weekly pattern: uniform on some days, sportswear or nativ
 1. **Parents set each child's week once**: the outfit for every weekday, and recurring activities with a time and what to bring.
 2. **Every evening the nanny gets a push notification** with tomorrow's checklist for each child, built automatically from the routine.
 3. **She ticks items off as she lays them out.** Parents see progress live.
-4. **If prep isn't finished by the deadline**, both parents are alerted by push and SMS, and the nanny gets a firmer reminder.
+4. **If prep isn't finished by the deadline**, both parents get a push alert, and the nanny gets a firmer reminder.
 5. **Activity reminders** go to the nanny before each activity, with a leave-by time and what to pack.
 6. **Parents can send the nanny one-off tasks** that arrive instantly as push notifications. She marks them done and the parents are notified.
 7. **School notices**: a parent pastes the school's broadcast message, AI reads the date and dress code, the parent confirms, and that day's checklist updates.
@@ -86,7 +86,7 @@ Not part of this build:
 ### 5.7 Deadline escalation
 - At the **prep deadline** (default 8:00 PM), if the session isn't complete:
   - The session is marked `overdue`.
-  - **Both parents** get a push and an **SMS backup** listing which children aren't finished and how many items are left.
+  - **Both parents** get a push listing which children aren't finished and how many items are left.
   - The **nanny** gets a push: *"Prep is overdue. Ejiro is not finished. Madam and Oga have been notified."*
 - Optional mid-way nudge to the nanny (for example 7:30 PM) if nothing has been ticked yet.
 
@@ -124,7 +124,6 @@ Expected AI output:
 - Prep release time, prep deadline, optional nudge time
 - Activity reminder lead time, leave-by buffer
 - Parent notifications: all ready, activity reminders (on/off)
-- SMS backup on/off and parent phone numbers
 
 ---
 
@@ -140,7 +139,6 @@ Expected AI output:
 | Theme | Dark canvas `#0A0F14`, lime accent `#84CC16` |
 | App type | **PWA** (installable, offline-tolerant, Web Push) |
 | Push | **Web Push** with VAPID keys, sent from a Supabase Edge Function (`npm:web-push`) |
-| SMS backup | **Termii** (Nigerian SMS provider) |
 | AI | **Claude API** (`claude-sonnet-5-5`) for school notice parsing |
 
 One codebase serves both roles: `/parent/*` and `/nanny/*` routes, guarded by role.
@@ -167,7 +165,6 @@ create table households (
   leave_buffer_minutes int not null default 30,
   notify_parents_all_ready boolean not null default true,
   notify_parents_activities boolean not null default false,
-  sms_backup boolean not null default true,
   created_at timestamptz not null default now()
 );
 
@@ -177,7 +174,7 @@ create table members (
   user_id uuid unique references auth.users on delete cascade,
   role member_role not null,
   display_name text not null,
-  phone text,                                   -- E.164, used for SMS backup
+  phone text,                                   -- E.164, nanny sign-in
   setup_token text unique,                      -- one-time nanny setup link
   setup_token_expires_at timestamptz,
   created_at timestamptz not null default now()
@@ -331,7 +328,7 @@ All times are computed in the household's timezone (`Africa/Lagos`).
    - Build items: outfit items, plus active activities for tomorrow's weekday, plus override extra items.
    - Insert the session and its items, then notify nannies (`prep_release`).
 2. **Nudge** (optional). If ≥ `prep_nudge_time`, the session is pending and no items are checked, notify nannies (`prep_nudge`).
-3. **Deadline.** If ≥ `prep_deadline_time` and the session is still pending, set it to `overdue`. Notify parents (push + SMS if `sms_backup`) and nannies (`prep_overdue`).
+3. **Deadline.** If ≥ `prep_deadline_time` and the session is still pending, set it to `overdue`. Notify parents and nannies (`prep_overdue`).
 4. **Activity reminders.** For today's active activities where `now >= start_time - activity_lead_minutes` and `now < start_time`, notify nannies (and parents if enabled) with dedupe key `activity:<id>:<date>`.
 5. **Task due.** For open tasks where `now >= due_at`, notify the assignee once (`task_due:<id>`).
 
@@ -343,7 +340,6 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 **Edge Function `send-notification`** (used by everything above):
 - Inserts into `notifications`. On a `(member_id, dedupe_key)` conflict, skip, which keeps sends idempotent.
 - Sends Web Push to every subscription for that member. On a 404 or 410 response, delete the subscription.
-- If `sms` is in the channels, send via Termii to `members.phone`.
 
 **Edge Function `parse-notice`:**
 - Input: `raw_text` and the household's children and classes.
@@ -387,7 +383,7 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 - [ ] At 6:30 PM Lagos time, the nanny receives a push for tomorrow's prep, and the list matches the outfit, activities and any override exactly.
 - [ ] Ticking an item updates the parent view within 2 seconds (Supabase Realtime).
 - [ ] A child shows Ready with a timestamp when all of their items are ticked; parents get an "all ready" push when every child is done.
-- [ ] At 8:00 PM, if prep is incomplete, both parents get a push and an SMS naming the unfinished children, and the nanny gets an overdue push. No duplicates are sent.
+- [ ] At 8:00 PM, if prep is incomplete, both parents get a push naming the unfinished children, and the nanny gets an overdue push. No duplicates are sent.
 - [ ] Activity reminders arrive 60 minutes before each activity with the correct leave-by time.
 - [ ] A new task reaches the nanny's phone within 10 seconds; marking it done notifies the parent.
 - [ ] Pasting a school message produces a correct preview, and nothing changes until the parent taps Apply.
@@ -406,7 +402,7 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 
 **Week 2: the core loop**
 - PWA manifest, service worker, push subscription flow, test notification
-- `send-notification`, the `scheduler` cron (release, nudge, deadline), Termii SMS
+- `send-notification`, the `scheduler` cron (release, nudge, deadline)
 - Nanny Prep tab with ticking, parent live status via Realtime
 
 **Week 3: tasks, AI, polish**
@@ -424,7 +420,6 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 | Vercel (Hobby/Pro) | Free tier is enough for one household |
 | Supabase | Free tier is enough to start (move to Pro at about $25/month for backups and no project pausing) |
 | Web Push | Free |
-| Termii SMS backup | Pay per SMS, only sent when the deadline is missed |
 | Claude API | A few naira per school notice |
 | Play Store (optional, later) | One-time $25 developer fee if wrapped as an Android app (TWA) |
 

@@ -184,7 +184,6 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
       leave_buffer_minutes: Number(formData.get("leave_buffer_minutes")),
       notify_parents_all_ready: formData.get("notify_parents_all_ready") === "on",
       notify_parents_activities: formData.get("notify_parents_activities") === "on",
-      sms_backup: formData.get("sms_backup") === "on",
     })
     .eq("id", member.household_id);
   if (error) return { error: error.message };
@@ -194,12 +193,9 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
 export async function saveProfile(_: FormState, formData: FormData): Promise<FormState> {
   const { supabase, member } = await requireParent();
   const display_name = str(formData, "display_name");
-  const rawPhone = str(formData, "phone");
-  const phone = rawPhone ? normalizePhone(rawPhone) : null;
   if (!display_name) return { error: "Enter your name." };
-  if (rawPhone && !phone) return { error: "That phone number doesn't look right. Try 0803 000 0000." };
 
-  const { error } = await supabase.from("members").update({ display_name, phone }).eq("id", member.id);
+  const { error } = await supabase.from("members").update({ display_name }).eq("id", member.id);
   if (error) return { error: error.message };
   return done("Saved.");
 }

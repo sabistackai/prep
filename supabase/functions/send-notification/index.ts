@@ -1,5 +1,5 @@
-// Delivers queued rows from public.notifications: Web Push to every device the
-// member has subscribed, plus SMS (Termii) when the row's channels include "sms".
+// Delivers queued rows from public.notifications as Web Push to every device the
+// member has subscribed.
 //
 // Called by the database (pg_net): {"id": "<notification id>"} right after an
 // insert, or {"sweep": true} every 5 minutes to retry anything undelivered.
@@ -14,7 +14,6 @@ type Notification = {
   title: string;
   body: string;
   link: string | null;
-  channels: string[];
   attempts: number;
 };
 
@@ -68,18 +67,16 @@ async function deliver(n: Notification) {
   if (!claimed?.length) return { skipped: "already claimed" };
 
   const push = await sendPush(n);
-  const sms = n.channels.includes("sms") ? await sendSms(n) : "not requested";
 
-  // Retry later only if nothing at all got through and a retry could help.
-  const nothingSent = push.sent === 0 && sms !== "sent";
-  const retry = nothingSent && push.transient > 0 && n.attempts + 1 < MAX_ATTEMPTS;
+  // Retry later only if nothing got through and a retry could help.
+  const retry = push.sent === 0 && push.transient > 0 && n.attempts + 1 < MAX_ATTEMPTS;
 
   await supabase
     .from("notifications")
-    .update({ delivery: { push, sms }, ...(retry ? { delivered_at: null } : {}) })
+    .update({ delivery: { push }, ...(retry ? { delivered_at: null } : {}) })
     .eq("id", n.id);
 
-  return { push, sms, retry };
+  return { push, retry };
 }
 
 async function sendPush(n: Notification) {
@@ -115,29 +112,4 @@ async function sendPush(n: Notification) {
     }
   }
   return { devices: subs?.length ?? 0, sent, removed, transient };
-}
-
-async function sendSms(n: Notification) {
-  const apiKey = Deno.env.get("TERMII_API_KEY");
-  const sender = Deno.env.get("TERMII_SENDER_ID");
-  if (!apiKey || !sender) return "skipped: Termii not configured";
-
-  const { data: member } = await supabase.from("members").select("phone").eq("id", n.member_id).single();
-  if (!member?.phone) return "skipped: no phone number";
-
-  const res = await fetch("https://api.ng.termii.com/api/sms/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      api_key: apiKey,
-      to: member.phone.replace(/^\+/, ""),
-      from: sender,
-      sms: `PREP: ${n.body}`,
-      type: "plain",
-      channel: Deno.env.get("TERMII_CHANNEL") || "generic",
-    }),
-  });
-  if (res.ok) return "sent";
-  console.error("sms failed", res.status, await res.text());
-  return `failed: ${res.status}`;
 }

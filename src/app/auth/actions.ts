@@ -39,17 +39,12 @@ export async function parentSignUp(_: FormState, formData: FormData): Promise<Fo
 export async function createHousehold(_: FormState, formData: FormData): Promise<FormState> {
   const name = String(formData.get("household")).trim();
   const displayName = String(formData.get("display_name")).trim();
-  const rawPhone = String(formData.get("phone") ?? "").trim();
   if (!name || !displayName) return { error: "Fill in both names." };
-
-  const phone = rawPhone ? normalizePhone(rawPhone) : null;
-  if (rawPhone && !phone) return { error: "That phone number doesn't look right. Try 0803 000 0000." };
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("create_household", {
     p_name: name,
     p_display_name: displayName,
-    p_phone: phone ?? undefined,
   });
   if (error) return { error: error.message };
   redirect("/parent/settings#children");

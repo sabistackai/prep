@@ -118,7 +118,6 @@ export default async function SettingsPage() {
       supabase.from("members").select("*").order("created_at"),
     ]);
   const nannies = (members ?? []).filter((m) => m.role === "nanny");
-  const parents = (members ?? []).filter((m) => m.role === "parent");
 
   return (
     <>
@@ -296,25 +295,10 @@ export default async function SettingsPage() {
                     label="Send me activity reminders too"
                     checked={household.notify_parents_activities}
                   />
-                  <Toggle
-                    name="sms_backup"
-                    label="SMS me if prep misses the deadline"
-                    checked={household.sms_backup}
-                  />
                 </div>
                 <SubmitButton>Save settings</SubmitButton>
               </ActionForm>
             </Card>
-            {household.sms_backup && parents.some((p) => !p.phone) && (
-              <p className="text-sm text-warning">
-                {parents
-                  .filter((p) => !p.phone)
-                  .map((p) => p.display_name)
-                  .join(" and ")}{" "}
-                {parents.filter((p) => !p.phone).length > 1 ? "have" : "has"} no phone number, so SMS alerts
-                can&apos;t reach them.
-              </p>
-            )}
           </Section>
         )}
 
@@ -376,14 +360,9 @@ export default async function SettingsPage() {
         <Section id="you" title="Your details">
           <Card>
             <ActionForm action={saveProfile} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Your name">
-                  <input name="display_name" defaultValue={me.display_name} required className={inputClass} />
-                </Field>
-                <Field label="Phone for SMS alerts">
-                  <input name="phone" type="tel" inputMode="tel" defaultValue={me.phone ?? ""} className={inputClass} />
-                </Field>
-              </div>
+              <Field label="Your name">
+                <input name="display_name" defaultValue={me.display_name} required className={inputClass} />
+              </Field>
               <SubmitButton variant="secondary">Save</SubmitButton>
             </ActionForm>
           </Card>
