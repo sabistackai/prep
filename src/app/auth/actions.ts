@@ -63,7 +63,10 @@ export async function nannySignIn(_: FormState, formData: FormData): Promise<For
   // Counted before the check, so parallel guesses can't get past the limit.
   const admin = createAdminClient();
   const { data: state, error: limitError } = await admin.rpc("pin_attempt_start", { p_phone: phone });
-  if (limitError) return { error: "Couldn't sign you in right now. Please try again." };
+  if (limitError) {
+    console.error("[PREP] pin_attempt_start failed", limitError.message);
+    return { error: "Couldn't sign you in right now. Please try again." };
+  }
   if (state === "paused") return { error: PIN_PAUSED };
   if (state === "locked") return { error: PIN_LOCKED };
 

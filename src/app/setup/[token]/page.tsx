@@ -6,12 +6,22 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function NannySetupPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const { data: member } = await createAdminClient()
+  const { data: member, error } = await createAdminClient()
     .from("members")
     .select("display_name, setup_token_expires_at")
     .eq("setup_token", token)
     .eq("role", "nanny")
     .maybeSingle();
+
+  if (error) {
+    // A server problem (e.g. a wrong SUPABASE_SECRET_KEY), not a bad link. Shows in Vercel's logs.
+    console.error("[PREP] setup link lookup failed", error.message);
+    return (
+      <AuthShell title="PREP couldn't check this link" subtitle="This is a problem on our side, not with your link. Please try again later.">
+        {null}
+      </AuthShell>
+    );
+  }
 
   const expired = member?.setup_token_expires_at && new Date(member.setup_token_expires_at) < new Date();
   if (!member || expired) {
