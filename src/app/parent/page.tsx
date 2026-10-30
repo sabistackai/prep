@@ -2,6 +2,7 @@ import Link from "next/link";
 import { rebuildTonight } from "@/app/parent/actions";
 import { ActionForm, SubmitButton } from "@/components/form";
 import { LiveRefresh } from "@/components/live-refresh";
+import { loadNotificationHealth, NotificationWarning } from "@/components/notification-warning";
 import { PrepBoard } from "@/components/prep-board";
 import { TaskCard } from "@/components/task-card";
 import { Card, Mono, PageHeader } from "@/components/ui";
@@ -11,12 +12,13 @@ import { loadTasks } from "@/lib/tasks";
 
 export default async function TodayPage() {
   const { supabase } = await requireParent();
-  const [{ overview, kids, items }, { data: household }, { data: nannies }, { count: activities }, tasks] = await Promise.all([
+  const [{ overview, kids, items }, { data: household }, { data: nannies }, { count: activities }, tasks, health] = await Promise.all([
     loadPrep(supabase),
     supabase.from("households").select("name").single(),
     supabase.from("members").select("user_id").eq("role", "nanny"),
     supabase.from("activities").select("*", { count: "exact", head: true }),
     loadTasks(supabase, 0),
+    loadNotificationHealth(supabase),
   ]);
   const session = overview?.session;
 
@@ -33,6 +35,13 @@ export default async function TodayPage() {
     <>
       <LiveRefresh tables={["tasks"]} />
       <PageHeader title={household?.name ?? "Today"} />
+      {health.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {health.map((h) => (
+            <NotificationWarning key={h.member_id} health={h} />
+          ))}
+        </div>
+      )}
 
       {session ? (
         <section className="mb-6">

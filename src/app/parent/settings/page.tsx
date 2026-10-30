@@ -13,6 +13,7 @@ import {
   saveSettings,
 } from "@/app/parent/actions";
 import { ActionForm, SubmitButton } from "@/components/form";
+import { loadNotificationHealth, NotificationWarning } from "@/components/notification-warning";
 import { PhoneGuide } from "@/components/phone-guide";
 import { PushSetup } from "@/components/push-setup";
 import { ShareLink } from "@/components/share-link";
@@ -118,6 +119,7 @@ export default async function SettingsPage() {
       supabase.from("holidays").select("*").order("starts_on", { ascending: false }),
       supabase.from("members").select("*").order("created_at"),
     ]);
+  const health = await loadNotificationHealth(supabase);
   const nannies = (members ?? []).filter((m) => m.role === "nanny");
 
   return (
@@ -315,6 +317,11 @@ export default async function SettingsPage() {
                   {n.setup_token ? (n.user_id ? "New link sent" : "Waiting for setup") : "Set up"}
                 </span>
               </div>
+              {health
+                .filter((h) => h.member_id === n.id)
+                .map((h) => (
+                  <NotificationWarning key={h.member_id} health={h} />
+                ))}
               {n.setup_token && (
                 <ShareLink
                   url={`${siteUrl}/setup/${n.setup_token}`}

@@ -487,6 +487,9 @@ isOneToOne: false
 "mark_notifications_read":
 { Args: { "p_ids": (string)[] }; Returns: undefined
                            },
+"notification_health":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "pin_attempt_failed":
 { Args: { "p_phone": string }; Returns: string
                            },
