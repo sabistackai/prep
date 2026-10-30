@@ -181,7 +181,7 @@ begin
     select count(*), max(body) into n, v_text from public.notifications
      where kind = 'activity' and household_id = v_house and title = 'Swimming soon';
     perform pg_temp.check(n = 1, 'activity reminder goes to the nanny only (parents opted out)');
-    perform pg_temp.check(v_text like 'Tobi: Swimming at % Leave by %. Bring goggles and towel.', 'activity message: ' || v_text);
+    perform pg_temp.check(v_text like 'Tobi: Swimming at %. Bring goggles and towel.' and v_text not like '%Leave by%', 'activity message: ' || v_text);
   end if;
 
   -- PIN lockout tells parents --------------------------------------------------------

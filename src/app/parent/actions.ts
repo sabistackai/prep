@@ -181,7 +181,6 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
       prep_deadline_time: deadline,
       prep_nudge_time: nudge,
       activity_lead_minutes: Number(formData.get("activity_lead_minutes")),
-      leave_buffer_minutes: Number(formData.get("leave_buffer_minutes")),
       notify_parents_all_ready: formData.get("notify_parents_all_ready") === "on",
       notify_parents_activities: formData.get("notify_parents_activities") === "on",
     })

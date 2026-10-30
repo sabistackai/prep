@@ -3,7 +3,7 @@ import { Card, Mono, PageHeader } from "@/components/ui";
 import { requireNanny } from "@/lib/auth";
 import { formatTime, weekdayName } from "@/lib/format";
 
-// Week 3 adds notification history and leave-by times.
+// Week 3 adds notification history.
 export default async function NannyAlertsPage() {
   const { supabase } = await requireNanny();
   const [{ data: activities }, { data: kids }] = await Promise.all([

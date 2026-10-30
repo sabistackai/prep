@@ -16,7 +16,7 @@ Each child has a fixed weekly pattern: uniform on some days, sportswear or nativ
 2. **Every evening the nanny gets a push notification** with tomorrow's checklist for each child, built automatically from the routine.
 3. **She ticks items off as she lays them out.** Parents see progress live.
 4. **If prep isn't finished by the deadline**, both parents get a push alert, and the nanny gets a firmer reminder.
-5. **Activity reminders** go to the nanny before each activity, with a leave-by time and what to pack.
+5. **Activity reminders** go to the nanny before each activity, with what to pack.
 6. **Parents can send the nanny one-off tasks** that arrive instantly as push notifications. She marks them done and the parents are notified.
 7. ~~**School notices**: a parent pastes the school's broadcast message, AI reads the date and dress code, the parent confirms, and that day's checklist updates.~~ Dropped on 2026-10-30: PREP uses no AI.
 
@@ -91,8 +91,8 @@ Not part of this build:
 - Optional mid-way nudge to the nanny (for example 7:30 PM) if nothing has been ticked yet.
 
 ### 5.8 Activity reminders
-- Sent to the nanny **N minutes before** each activity (default 60), with a **leave-by** time = start time − travel buffer (default 30 min).
-- Example: *"Tobi: Football academy at 8:00 AM. Leave by 7:30 AM. Bring boots, shin guards, jersey, water bottle."*
+- Sent to the nanny **N minutes before** each activity (default 60).
+- Example: *"Tobi: Football academy at 8:00 AM. Bring boots, shin guards, jersey, water bottle."*
 - Parents can optionally get them too (setting).
 
 ### 5.9 Tasks
@@ -125,7 +125,7 @@ Expected AI output:
 
 ### 5.11 Settings (per household)
 - Prep release time, prep deadline, optional nudge time
-- Activity reminder lead time, leave-by buffer
+- Activity reminder lead time
 - Parent notifications: all ready, activity reminders (on/off)
 
 ---
@@ -164,7 +164,6 @@ create table households (
   prep_nudge_time time,                       -- optional, e.g. '19:30'
   prep_deadline_time time not null default '20:00',
   activity_lead_minutes int not null default 60,
-  leave_buffer_minutes int not null default 30,
   notify_parents_all_ready boolean not null default true,
   notify_parents_activities boolean not null default false,
   created_at timestamptz not null default now()
@@ -375,7 +374,7 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 **Nanny** (large tap targets, plain English, 3 tabs)
 1. **Prep**: tonight's checklist cards per child, with a Ready badge.
 2. **Tasks**: open tasks with a Done button, then completed ones.
-3. **Alerts**: notification history plus upcoming activities with leave-by times.
+3. **Alerts**: notification history plus upcoming activities.
 
 ---
 
@@ -386,7 +385,7 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 - [ ] Ticking an item updates the parent view within 2 seconds (Supabase Realtime).
 - [ ] A child shows Ready with a timestamp when all of their items are ticked; parents get an "all ready" push when every child is done.
 - [ ] At 8:00 PM, if prep is incomplete, both parents get a push naming the unfinished children, and the nanny gets an overdue push. No duplicates are sent.
-- [ ] Activity reminders arrive 60 minutes before each activity with the correct leave-by time.
+- [ ] Activity reminders arrive 60 minutes before each activity.
 - [ ] A new task reaches the nanny's phone within 10 seconds; marking it done notifies the parent.
 - [ ] Pasting a school message produces a correct preview, and nothing changes until the parent taps Apply.
 - [ ] Holiday dates switch school-day outfits to Casual.

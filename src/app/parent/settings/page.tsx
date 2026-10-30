@@ -276,16 +276,6 @@ export default async function SettingsPage() {
                       className={`${inputClass} tabular-nums`}
                     />
                   </Field>
-                  <Field label="Travel time" hint="Minutes, for the leave-by time">
-                    <input
-                      name="leave_buffer_minutes"
-                      type="number"
-                      min={0}
-                      max={240}
-                      defaultValue={household.leave_buffer_minutes}
-                      className={`${inputClass} tabular-nums`}
-                    />
-                  </Field>
                 </div>
                 <div className="divide-y divide-border border-y border-border">
                   <Toggle

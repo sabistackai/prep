@@ -91,14 +91,14 @@ isOneToOne: false
                   ]
                 },"households": {
                   Row: {
-                    "activity_lead_minutes": number,"created_at": string,"id": string,"leave_buffer_minutes": number,"name": string,"notify_parents_activities": boolean,"notify_parents_all_ready": boolean,"prep_deadline_time": string,"prep_nudge_time": string | null,"prep_release_time": string,"timezone": string
+                    "activity_lead_minutes": number,"created_at": string,"id": string,"name": string,"notify_parents_activities": boolean,"notify_parents_all_ready": boolean,"prep_deadline_time": string,"prep_nudge_time": string | null,"prep_release_time": string,"timezone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "activity_lead_minutes"?: number,"created_at"?: string,"id"?: string,"leave_buffer_minutes"?: number,"name": string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
+                    "activity_lead_minutes"?: number,"created_at"?: string,"id"?: string,"name": string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
                   }
                   Update: {
-                    "activity_lead_minutes"?: number,"created_at"?: string,"id"?: string,"leave_buffer_minutes"?: number,"name"?: string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
+                    "activity_lead_minutes"?: number,"created_at"?: string,"id"?: string,"name"?: string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
                   }
                   Relationships: [
                     
