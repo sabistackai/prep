@@ -255,6 +255,48 @@ export async function createTask(_: FormState, formData: FormData): Promise<Form
   return done("Sent. It's on the nanny's phone now.");
 }
 
+// One task per child with a time and food, e.g. "Ada's lunch: rice and stew".
+export async function createMealTasks(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireParent();
+  const meal = str(formData, "meal").toLowerCase();
+  const date = str(formData, "due_date");
+  if (!meal || !date) return { error: "Choose the meal and the day." };
+
+  const { data: kids, error: kidsError } = await supabase.from("children").select("id, name").order("sort");
+  if (kidsError) return { error: "Couldn't load the children. Please try again." };
+
+  const meals = [];
+  for (const kid of kids ?? []) {
+    const time = str(formData, `time_${kid.id}`);
+    const food = str(formData, `food_${kid.id}`);
+    if (!time && !food) continue;
+    if (!time) return { error: `Set a time for ${kid.name}.` };
+    if (!food) return { error: `Say what ${kid.name} is eating.` };
+    // Checked up front so one child's bad time can't leave the others half sent.
+    if (new Date(`${date}T${time}:00+01:00`) <= new Date()) {
+      return { error: `${kid.name}'s time has already passed.` };
+    }
+    meals.push({ title: `${kid.name}'s ${meal}: ${food}`, due: `${date} ${time}` });
+  }
+  if (!meals.length) return { error: "Add a time and food for at least one child." };
+
+  let sent = 0;
+  for (const { title, due } of meals) {
+    const { error } = await supabase.rpc("create_task", {
+      p_assigned_to: str(formData, "assigned_to"),
+      p_title: title,
+      p_due_local: due,
+    });
+    if (error) {
+      const message = sent ? `Only ${sent} of ${meals.length} meals were sent. Check the list below.` : error.message;
+      revalidatePath("/parent", "layout");
+      return { error: message };
+    }
+    sent++;
+  }
+  return done(sent === 1 ? "Sent. It's on the nanny's phone now." : `${sent} meals sent. They're on the nanny's phone now.`);
+}
+
 export async function markTaskDone(formData: FormData) {
   const { supabase } = await requireParent();
   await supabase.rpc("complete_task", { p_task_id: str(formData, "id") });

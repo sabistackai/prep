@@ -7,10 +7,14 @@ import { Card, Field, inputClass, labelClass, PageHeader } from "@/components/ui
 import { requireParent } from "@/lib/auth";
 import { formatDue } from "@/lib/format";
 import { loadTasks } from "@/lib/tasks";
+import { MealForm } from "./meal-form";
 
 export default async function ParentTasksPage() {
   const { supabase } = await requireParent();
-  const { open, done, members, name } = await loadTasks(supabase, 14);
+  const [{ open, done, members, name }, { data: kids }] = await Promise.all([
+    loadTasks(supabase, 14),
+    supabase.from("children").select("id, name, color").order("sort"),
+  ]);
   const nannies = members.filter((m) => m.role === "nanny");
   const many = nannies.length > 1;
 
@@ -18,6 +22,8 @@ export default async function ParentTasksPage() {
     <>
       <LiveRefresh tables={["tasks"]} />
       <PageHeader title="Tasks" subtitle="The nanny gets each task on their phone straight away." />
+
+      {nannies.length > 0 && !!kids?.length && <MealForm kids={kids} nannies={nannies} />}
 
       {nannies.length === 0 ? (
         <Card className="mb-6">
