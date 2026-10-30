@@ -18,7 +18,7 @@ Each child has a fixed weekly pattern: uniform on some days, sportswear or nativ
 4. **If prep isn't finished by the deadline**, both parents get a push alert, and the nanny gets a firmer reminder.
 5. **Activity reminders** go to the nanny before each activity, with a leave-by time and what to pack.
 6. **Parents can send the nanny one-off tasks** that arrive instantly as push notifications. She marks them done and the parents are notified.
-7. **School notices**: a parent pastes the school's broadcast message, AI reads the date and dress code, the parent confirms, and that day's checklist updates.
+7. ~~**School notices**: a parent pastes the school's broadcast message, AI reads the date and dress code, the parent confirms, and that day's checklist updates.~~ Dropped on 2026-10-30: PREP uses no AI.
 
 ## 3. Out of scope
 
@@ -49,7 +49,7 @@ Not part of this build:
 
 ### 5.1 Children
 - Add, edit or remove a child: name, class (for example "JSS 2", "Primary 4", "Nursery 2"), colour.
-- The class is used to match school notices ("Primary and JSS pupils should…").
+- The class is optional and shown next to the child's name.
 
 ### 5.2 Outfits
 - Each household has a list of outfits, and each outfit has a default checklist.
@@ -101,7 +101,10 @@ Not part of this build:
 - The nanny taps Done and the parent gets a push.
 - Overdue open tasks get one reminder push to the nanny at the due time.
 
-### 5.10 School notice reader
+### 5.10 School notice reader (dropped)
+
+> **Dropped on 2026-10-30.** PREP doesn't use AI or need a Claude API key. One-day changes are entered by hand (5.5). The design below is kept for reference only.
+
 - A parent pastes the school's message into a text box.
 - An edge function calls the Claude API and returns structured JSON (below).
 - The parent sees the proposed change ("Monday 27 Oct: Ada and Tobi wear Sportswear, plus water bottle") and taps **Apply** or **Cancel**. **Nothing changes without confirmation.**
@@ -139,7 +142,6 @@ Expected AI output:
 | Theme | Dark canvas `#0A0F14`, lime accent `#84CC16` |
 | App type | **PWA** (installable, offline-tolerant, Web Push) |
 | Push | **Web Push** with VAPID keys, sent from a Supabase Edge Function (`npm:web-push`) |
-| AI | **Claude API** (`claude-sonnet-5-5`) for school notice parsing |
 
 One codebase serves both roles: `/parent/*` and `/nanny/*` routes, guarded by role.
 
@@ -407,7 +409,7 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 
 **Week 3: tasks, AI, polish**
 - Tasks plus triggers, activity reminders, task due reminders
-- `parse-notice` and `apply-notice` with Claude, holidays
+- ~~`parse-notice` and `apply-notice` with Claude~~ (dropped), holidays
 - Android battery guide, offline queue, notification health warning
 - 3–5 day live trial with the household, then fixes
 
@@ -420,7 +422,6 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 | Vercel (Hobby/Pro) | Free tier is enough for one household |
 | Supabase | Free tier is enough to start (move to Pro at about $25/month for backups and no project pausing) |
 | Web Push | Free |
-| Claude API | A few naira per school notice |
 | Play Store (optional, later) | One-time $25 developer fee if wrapped as an Android app (TWA) |
 
 On the free Supabase tier, projects pause after a period of inactivity. Use Pro for the live client, or make sure the cron job keeps it active.

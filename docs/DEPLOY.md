@@ -1,6 +1,6 @@
 # Deploying PREP
 
-PREP uses its own accounts (GitHub `sabistackai`, plus separate Vercel, Supabase and Claude accounts).
+PREP uses its own accounts (GitHub `sabistackai`, plus separate Vercel and Supabase accounts).
 Don't use the Vercel CLI on this machine: it is signed in to a different account.
 
 ## 1. Supabase (cloud project)

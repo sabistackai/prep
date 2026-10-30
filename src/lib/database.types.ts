@@ -285,38 +285,6 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"school_notices": {
-                  Row: {
-                    "created_at": string,"created_by": string,"household_id": string,"id": string,"parsed": Json | null,"raw_text": string,"status": Database["public"]['Enums']["notice_status"]
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "created_at"?: string,"created_by": string,"household_id": string,"id"?: string,"parsed"?: Json | null,"raw_text": string,"status"?: Database["public"]['Enums']["notice_status"]
-                  }
-                  Update: {
-                    "created_at"?: string,"created_by"?: string,"household_id"?: string,"id"?: string,"parsed"?: Json | null,"raw_text"?: string,"status"?: Database["public"]['Enums']["notice_status"]
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "school_notices_created_by_fkey"
-      columns: ["created_by"]
-isOneToOne: false
-      referencedRelation: "member_names"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "school_notices_created_by_fkey"
-      columns: ["created_by"]
-isOneToOne: false
-      referencedRelation: "members"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "school_notices_household_id_fkey"
-      columns: ["household_id"]
-isOneToOne: false
-      referencedRelation: "households"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"security_events": {
                   Row: {
                     "created_at": string,"household_id": string,"id": string,"kind": string,"member_id": string | null
@@ -533,7 +501,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "member_role": "parent"|"nanny","notice_status": "pending"|"applied"|"cancelled"|"failed","override_source": "manual"|"school_notice","session_status": "pending"|"complete"|"overdue"
+            "member_role": "parent"|"nanny","override_source": "manual"|"school_notice","session_status": "pending"|"complete"|"overdue"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -653,7 +621,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "member_role": ["parent", "nanny"],"notice_status": ["pending", "applied", "cancelled", "failed"],"override_source": ["manual", "school_notice"],"session_status": ["pending", "complete", "overdue"]
+            "member_role": ["parent", "nanny"],"override_source": ["manual", "school_notice"],"session_status": ["pending", "complete", "overdue"]
           }
         }
 } as const

@@ -143,7 +143,7 @@ export default async function SettingsPage() {
       </nav>
 
       <div className="space-y-10">
-        <Section id="children" title="Children" hint="The class is used to match school notices.">
+        <Section id="children" title="Children" hint="The class is optional and shows next to the name.">
           {(kids ?? []).map((c) => (
             <Card key={c.id}>
               <ActionForm action={saveChild} className="space-y-3">

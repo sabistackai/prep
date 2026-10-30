@@ -57,8 +57,6 @@ begin
   perform pg_temp.act_as(parent_a);
   insert into public.tasks (household_id, created_by, assigned_to, title)
   values (v_household, v_parent_member, v_nanny_member, 'Iron Ada''s choir robe') returning id into v_task;
-  insert into public.school_notices (household_id, created_by, raw_text)
-  values (v_household, v_parent_member, 'Sports day on Monday');
 
   -- Nanny: what she can read --------------------------------------------------
   perform pg_temp.act_as(nanny);
@@ -68,7 +66,6 @@ begin
   select count(*) into n from public.prep_items;     perform pg_temp.check(n = 2, 'nanny reads prep items');
   select count(*) into n from public.tasks;          perform pg_temp.check(n = 1, 'nanny reads her tasks');
   select count(*) into n from public.households;     perform pg_temp.check(n = 0, 'nanny cannot read household settings');
-  select count(*) into n from public.school_notices; perform pg_temp.check(n = 0, 'nanny cannot read school notices');
   select count(*) into n from public.members;        perform pg_temp.check(n = 1, 'nanny sees only her own member row');
   select count(*) into n from public.members where phone = '+2348031111111';
   perform pg_temp.check(n = 0, 'nanny cannot see parent phone numbers');
