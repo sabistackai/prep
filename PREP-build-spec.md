@@ -72,7 +72,7 @@ Not part of this build:
 - Example: Tobi, Saturday, 8:00 AM, Football academy, bring boots, shin guards, jersey, water bottle.
 
 ### 5.5 Date overrides and holidays
-- **Override:** for a specific date and child, change the outfit and/or add extra items. These come from school notices or are added manually.
+- **Override:** for a specific date and one or more children, change the outfit and/or add extra items, with an optional reason. Added by a parent under Routine → Change one day. If that day's list has already gone out, it is rebuilt for those children (ticks kept) and the nanny is notified.
 - **Holiday ranges:** the parent marks term breaks or public holidays, and school-day outfits switch to Casual for those dates. Activities still apply unless paused.
 
 ### 5.6 Evening prep (core feature)

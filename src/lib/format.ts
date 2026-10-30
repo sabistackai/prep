@@ -50,3 +50,18 @@ const dueFormat = new Intl.DateTimeFormat("en-US", {
 export function formatDue(iso: string) {
   return dueFormat.format(new Date(iso)).replace(",", "");
 }
+
+// Today's date in Lagos as "2026-10-30", optionally shifted by whole days.
+export function lagosDate(addDays = 0) {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" }).format(new Date());
+  const d = new Date(`${today}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + addDays);
+  return d.toISOString().slice(0, 10);
+}
+
+// "2026-11-10" -> "Mon 10 Nov"
+export function formatDay(isoDate: string) {
+  return new Date(`${isoDate}T12:00:00Z`)
+    .toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })
+    .replace(",", "");
+}

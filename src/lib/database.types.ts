@@ -473,11 +473,17 @@ isOneToOne: false
 "rebuild_prep_session":
 { Args: { "p_session_id": string }; Returns: undefined
                            },
+"remove_day_change":
+{ Args: { "p_override_id": string }; Returns: undefined
+                           },
 "reset_nanny_setup":
 { Args: { "p_member_id": string }; Returns: string
                            },
 "run_scheduler":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"save_day_change":
+{ Args: { "p_children": (string)[],"p_extra_items"?: (string)[],"p_note"?: string,"p_on_date": string,"p_outfit_id"?: string }; Returns: undefined
                            },
 "send_test_notification":
 { Args: { "p_delay_minutes"?: number }; Returns: undefined

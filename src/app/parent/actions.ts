@@ -273,3 +273,24 @@ export async function deleteTask(formData: FormData) {
   await supabase.from("tasks").delete().eq("id", str(formData, "id"));
   done();
 }
+
+// One-day changes --------------------------------------------------------------
+
+export async function saveDayChange(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireParent();
+  const { error } = await supabase.rpc("save_day_change", {
+    p_on_date: str(formData, "on_date"),
+    p_children: formData.getAll("child_id").map(String),
+    p_outfit_id: str(formData, "outfit_id") || undefined,
+    p_extra_items: parseList(formData.get("extra_items")),
+    p_note: str(formData, "note") || undefined,
+  });
+  if (error) return { error: error.message };
+  return done("Saved. If that day's list has already gone out, it's updated and the nanny is told.");
+}
+
+export async function removeDayChange(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.rpc("remove_day_change", { p_override_id: str(formData, "id") });
+  done();
+}

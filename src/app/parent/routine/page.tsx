@@ -1,15 +1,22 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireParent } from "@/lib/auth";
-import { OUTFIT_COLORS } from "@/lib/format";
+import { lagosDate, OUTFIT_COLORS } from "@/lib/format";
+import { DayChanges } from "./day-changes";
 import { RoutineGrid } from "./routine-grid";
 
 export default async function RoutinePage() {
   const { supabase } = await requireParent();
-  const [{ data: children }, { data: outfits }, { data: routine }] = await Promise.all([
+  const [{ data: children }, { data: outfits }, { data: routine }, { data: changes }] = await Promise.all([
     supabase.from("children").select("id, name, class_name, color").order("sort"),
     supabase.from("outfits").select("id, name").order("sort").order("name"),
     supabase.from("weekly_routine").select("child_id, weekday, outfit_id"),
+    supabase
+      .from("overrides")
+      .select("id, child_id, on_date, outfit_id, extra_items, note")
+      .eq("source", "manual")
+      .gte("on_date", lagosDate())
+      .order("on_date"),
   ]);
 
   if (!children?.length) {
@@ -31,6 +38,8 @@ export default async function RoutinePage() {
   return (
     <>
       <PageHeader title="Routine" subtitle="Tap a day to change the outfit. Hold it to pick one directly." />
+
+      <DayChanges kids={children} outfits={outfits ?? []} changes={changes ?? []} />
 
       <div className="space-y-4">
         {children.map((child) => (
