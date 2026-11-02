@@ -25,14 +25,14 @@ const OFFLINE_HTML = `<!doctype html><meta charset="utf-8"><meta name="viewport"
 <p><a href="/nanny" style="color:#25307a;font-weight:700">Try tonight's prep</a></p></body>`;
 
 // Signed-in nanny screens worth keeping offline (not the login or setup pages).
-const isNannyPage = (url) => url.pathname === "/nanny" || /^\/nanny\/(tasks|alerts|notifications)$/.test(url.pathname);
+const isNannyPage = (url) => url.pathname === "/nanny" || /^\/nanny\/(today|tasks|alerts|notifications|kids)$/.test(url.pathname);
 const isLoginPage = (url) => url.pathname === "/login" || url.pathname === "/nanny/login";
 const isStatic = (url) =>
   url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/brand/") || /^\/(icon|badge|favicon|apple-touch)/.test(url.pathname);
 
 // Save the other nanny tabs once too, so every tab opens offline, not just ones
 // visited. Visiting a tab online refreshes its copy.
-const NANNY_TABS = ["/nanny", "/nanny/tasks", "/nanny/alerts"];
+const NANNY_TABS = ["/nanny", "/nanny/today", "/nanny/tasks", "/nanny/alerts", "/nanny/kids"];
 function warm(except) {
   return caches.open(PAGES).then((cache) =>
     Promise.all(

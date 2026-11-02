@@ -3,7 +3,6 @@ import { Card, Mono, PageHeader } from "@/components/ui";
 import { requireNanny } from "@/lib/auth";
 import { formatTime, weekdayName } from "@/lib/format";
 
-// Week 3 adds notification history.
 export default async function NannyAlertsPage() {
   const { supabase } = await requireNanny();
   const [{ data: activities }, { data: kids }] = await Promise.all([
@@ -19,6 +18,12 @@ export default async function NannyAlertsPage() {
         className="mb-5 flex min-h-12 items-center justify-between rounded-[10px] border border-border bg-surface px-4 text-sm font-bold"
       >
         Notifications and appearance <span className="text-muted">›</span>
+      </Link>
+      <Link
+        href="/nanny/kids"
+        className="-mt-3 mb-5 flex min-h-12 items-center justify-between rounded-[10px] border border-border bg-surface px-4 text-sm font-bold"
+      >
+        Care cards and emergency contacts <span className="text-muted">›</span>
       </Link>
       <h2 className="mb-2 text-xs font-extrabold uppercase tracking-[0.12em] text-muted">Weekly activities</h2>
       <div className="space-y-2">

@@ -26,6 +26,12 @@
   --danger-soft: #FCE2E2;
   --focus: #22307A;
 
+  /* Chart marks for daily-care results (validated for colour-blind separation;
+     on-time / late / not ticked sit next to each other in stacked bars). */
+  --chart-on-time: #3A55C4;
+  --chart-late: #C98A12;
+  --chart-missed: #BE1E5A;
+
   /* Logo: light-background variant (spec 6.1). The tick is always indigo on marigold. */
   --brand-indigo: #22307A;
   --mark-stem: #22307A;
@@ -56,6 +62,10 @@
   --danger: #F87171;
   --danger-soft: #3F1D24;
   --focus: #F4B740;
+
+  --chart-on-time: #5B8DEF;
+  --chart-late: #B8820F;
+  --chart-missed: #E2457E;
 
   /* Logo: dark-background variant (spec 6.2) */
   --mark-stem: #FFFFFF;
@@ -93,6 +103,9 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-chart-on-time: var(--chart-on-time);
+  --color-chart-late: var(--chart-late);
+  --color-chart-missed: var(--chart-missed);
   --font-display: var(--font-fredoka), "Nunito Sans", system-ui, sans-serif;
   --font-sans: var(--font-nunito-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius-card: 16px;

@@ -65,3 +65,34 @@ export function formatDay(isoDate: string) {
     .toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" })
     .replace(",", "");
 }
+
+const clockFormat = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+  timeZone: "Africa/Lagos",
+});
+
+// ISO timestamp -> "1:30 PM" (Lagos time)
+export function formatClock(iso: string) {
+  return clockFormat.format(new Date(iso));
+}
+
+// "2026-11-02" -> the Monday of its week, "2026-11-02"
+export function weekStart(isoDate: string) {
+  const d = new Date(`${isoDate}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+// Shift an ISO date by whole days.
+export function addDays(isoDate: string, days: number) {
+  const d = new Date(`${isoDate}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+// ISO weekday (1 = Monday) of an ISO date.
+export function isoWeekday(isoDate: string) {
+  return ((new Date(`${isoDate}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
+}

@@ -49,6 +49,140 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"care_cards": {
+                  Row: {
+                    "allergies": string | null,"avoid_foods": string | null,"blood_group": string | null,"child_id": string,"conditions": string | null,"doctor_name": string | null,"doctor_phone": string | null,"hospital": string | null,"medicines": string | null,"notes": string | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "allergies"?: string | null,"avoid_foods"?: string | null,"blood_group"?: string | null,"child_id": string,"conditions"?: string | null,"doctor_name"?: string | null,"doctor_phone"?: string | null,"hospital"?: string | null,"medicines"?: string | null,"notes"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "allergies"?: string | null,"avoid_foods"?: string | null,"blood_group"?: string | null,"child_id"?: string,"conditions"?: string | null,"doctor_name"?: string | null,"doctor_phone"?: string | null,"hospital"?: string | null,"medicines"?: string | null,"notes"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "care_cards_child_id_fkey"
+      columns: ["child_id"]
+isOneToOne: true
+      referencedRelation: "children"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_cards_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "member_names"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_cards_updated_by_fkey"
+      columns: ["updated_by"]
+isOneToOne: false
+      referencedRelation: "members"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"care_days": {
+                  Row: {
+                    "built_at": string,"for_date": string,"household_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "built_at"?: string,"for_date": string,"household_id": string
+                  }
+                  Update: {
+                    "built_at"?: string,"for_date"?: string,"household_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "care_days_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"care_items": {
+                  Row: {
+                    "active": boolean,"at_time": string,"child_id": string,"created_at": string,"details": string | null,"household_id": string,"id": string,"kind": string,"school_days_only": boolean,"title": string,"weekday": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"at_time": string,"child_id": string,"created_at"?: string,"details"?: string | null,"household_id": string,"id"?: string,"kind"?: string,"school_days_only"?: boolean,"title": string,"weekday": number
+                  }
+                  Update: {
+                    "active"?: boolean,"at_time"?: string,"child_id"?: string,"created_at"?: string,"details"?: string | null,"household_id"?: string,"id"?: string,"kind"?: string,"school_days_only"?: boolean,"title"?: string,"weekday"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "care_items_child_id_fkey"
+      columns: ["child_id"]
+isOneToOne: false
+      referencedRelation: "children"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_items_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"care_log": {
+                  Row: {
+                    "child_id": string,"details": string | null,"done_at": string | null,"done_by": string | null,"due_at": string,"for_date": string,"household_id": string,"id": string,"item_id": string | null,"kind": string,"late_notified_at": string | null,"reminded_at": string | null,"skipped_at": string | null,"skipped_by": string | null,"title": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "child_id": string,"details"?: string | null,"done_at"?: string | null,"done_by"?: string | null,"due_at": string,"for_date": string,"household_id": string,"id"?: string,"item_id"?: string | null,"kind": string,"late_notified_at"?: string | null,"reminded_at"?: string | null,"skipped_at"?: string | null,"skipped_by"?: string | null,"title": string
+                  }
+                  Update: {
+                    "child_id"?: string,"details"?: string | null,"done_at"?: string | null,"done_by"?: string | null,"due_at"?: string,"for_date"?: string,"household_id"?: string,"id"?: string,"item_id"?: string | null,"kind"?: string,"late_notified_at"?: string | null,"reminded_at"?: string | null,"skipped_at"?: string | null,"skipped_by"?: string | null,"title"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "care_log_child_id_fkey"
+      columns: ["child_id"]
+isOneToOne: false
+      referencedRelation: "children"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_log_done_by_fkey"
+      columns: ["done_by"]
+isOneToOne: false
+      referencedRelation: "member_names"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_log_done_by_fkey"
+      columns: ["done_by"]
+isOneToOne: false
+      referencedRelation: "members"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_log_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_log_item_id_fkey"
+      columns: ["item_id"]
+isOneToOne: false
+      referencedRelation: "care_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_log_skipped_by_fkey"
+      columns: ["skipped_by"]
+isOneToOne: false
+      referencedRelation: "member_names"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "care_log_skipped_by_fkey"
+      columns: ["skipped_by"]
+isOneToOne: false
+      referencedRelation: "members"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"children": {
                   Row: {
                     "class_name": string | null,"color": string,"household_id": string,"id": string,"name": string,"sort": number
@@ -63,6 +197,26 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "children_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"emergency_contacts": {
+                  Row: {
+                    "household_id": string,"id": string,"name": string,"phone": string,"relation": string | null,"sort": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "household_id": string,"id"?: string,"name": string,"phone": string,"relation"?: string | null,"sort"?: number
+                  }
+                  Update: {
+                    "household_id"?: string,"id"?: string,"name"?: string,"phone"?: string,"relation"?: string | null,"sort"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "emergency_contacts_household_id_fkey"
       columns: ["household_id"]
 isOneToOne: false
       referencedRelation: "households"
@@ -91,14 +245,14 @@ isOneToOne: false
                   ]
                 },"households": {
                   Row: {
-                    "activity_lead_minutes": number,"created_at": string,"id": string,"name": string,"notify_parents_activities": boolean,"notify_parents_all_ready": boolean,"prep_deadline_time": string,"prep_nudge_time": string | null,"prep_release_time": string,"timezone": string
+                    "activity_lead_minutes": number,"care_lead_minutes": number,"created_at": string,"id": string,"name": string,"notify_parents_activities": boolean,"notify_parents_all_ready": boolean,"notify_parents_care_late": boolean,"notify_parents_weekly": boolean,"prep_deadline_time": string,"prep_nudge_time": string | null,"prep_release_time": string,"timezone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "activity_lead_minutes"?: number,"created_at"?: string,"id"?: string,"name": string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
+                    "activity_lead_minutes"?: number,"care_lead_minutes"?: number,"created_at"?: string,"id"?: string,"name": string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"notify_parents_care_late"?: boolean,"notify_parents_weekly"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
                   }
                   Update: {
-                    "activity_lead_minutes"?: number,"created_at"?: string,"id"?: string,"name"?: string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
+                    "activity_lead_minutes"?: number,"care_lead_minutes"?: number,"created_at"?: string,"id"?: string,"name"?: string,"notify_parents_activities"?: boolean,"notify_parents_all_ready"?: boolean,"notify_parents_care_late"?: boolean,"notify_parents_weekly"?: boolean,"prep_deadline_time"?: string,"prep_nudge_time"?: string | null,"prep_release_time"?: string,"timezone"?: string
                   }
                   Relationships: [
                     
@@ -446,6 +600,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"copy_care_day":
+{ Args: { "p_child"?: string,"p_from": number,"p_to": (number)[] }; Returns: number
+                           },
 "create_household":
 { Args: { "p_display_name": string,"p_name": string,"p_phone"?: string }; Returns: string
                            },
@@ -488,6 +645,33 @@ isOneToOne: false
 "send_test_notification":
 { Args: { "p_delay_minutes"?: number }; Returns: undefined
                            },
+"skip_care":
+{ Args: { "p_id": string,"p_skip": boolean }; Returns: undefined
+                           },
+"tick_care":
+{ Args: { "p_at"?: string,"p_done": boolean,"p_id": string }; Returns: {
+              "child_id": string,
+"details": string | null,
+"done_at": string | null,
+"done_by": string | null,
+"due_at": string,
+"for_date": string,
+"household_id": string,
+"id": string,
+"item_id": string | null,
+"kind": string,
+"late_notified_at": string | null,
+"reminded_at": string | null,
+"skipped_at": string | null,
+"skipped_by": string | null,
+"title": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "care_log"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "tick_item":
 { Args: { "p_at"?: string,"p_checked": boolean,"p_item_id": string }; Returns: {
               "checked_at": string | null,
@@ -504,7 +688,10 @@ isOneToOne: false
         to: "prep_items"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"weekly_summary":
+{ Args: { "p_day"?: string }; Returns: Json
+                           }
           }
           Enums: {
             "member_role": "parent"|"nanny","override_source": "manual"|"school_notice","session_status": "pending"|"complete"|"overdue"

@@ -22,7 +22,7 @@ export default async function RoutinePage() {
   if (!children?.length) {
     return (
       <>
-        <PageHeader title="Routine" />
+        <PageHeader title="Outfits" />
         <Card>
           <p className="text-sm text-muted">
             Add the children first, then set each one&apos;s outfit for every day of the week.{" "}
@@ -37,7 +37,7 @@ export default async function RoutinePage() {
 
   return (
     <>
-      <PageHeader title="Routine" subtitle="Tap a day to change the outfit. Hold it to pick one directly." />
+      <PageHeader title="Outfits" subtitle="Tap a day to change the outfit. Hold it to pick one directly." />
 
       <DayChanges kids={children} outfits={outfits ?? []} changes={changes ?? []} />
 

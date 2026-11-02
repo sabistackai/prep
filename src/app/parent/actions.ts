@@ -173,6 +173,8 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
   if (nudge && (nudge <= release || nudge >= deadline)) {
     return { error: "The reminder must be between the release time and the deadline." };
   }
+  const careLead = Number(formData.get("care_lead_minutes"));
+  if (!(careLead >= 0 && careLead <= 240)) return { error: "The daily care reminder must be 0 to 240 minutes before." };
 
   const { error } = await supabase
     .from("households")
@@ -181,8 +183,11 @@ export async function saveSettings(_: FormState, formData: FormData): Promise<Fo
       prep_deadline_time: deadline,
       prep_nudge_time: nudge,
       activity_lead_minutes: Number(formData.get("activity_lead_minutes")),
+      care_lead_minutes: Number(formData.get("care_lead_minutes")),
       notify_parents_all_ready: formData.get("notify_parents_all_ready") === "on",
       notify_parents_activities: formData.get("notify_parents_activities") === "on",
+      notify_parents_care_late: formData.get("notify_parents_care_late") === "on",
+      notify_parents_weekly: formData.get("notify_parents_weekly") === "on",
     })
     .eq("id", member.household_id);
   if (error) return { error: error.message };
@@ -333,5 +338,136 @@ export async function saveDayChange(_: FormState, formData: FormData): Promise<F
 export async function removeDayChange(formData: FormData) {
   const { supabase } = await requireParent();
   await supabase.rpc("remove_day_change", { p_override_id: str(formData, "id") });
+  done();
+}
+
+// Daily care schedule --------------------------------------------------------------
+
+const CARE_KIND_VALUES = new Set(["meal", "bath", "nap", "medicine", "homework", "play", "bedtime", "other"]);
+
+function careFields(formData: FormData) {
+  const kind = str(formData, "kind");
+  return {
+    kind: CARE_KIND_VALUES.has(kind) ? kind : "other",
+    title: str(formData, "title"),
+    at_time: str(formData, "at_time"),
+    details: str(formData, "details") || null,
+    school_days_only: formData.get("school_days_only") === "on",
+  };
+}
+
+// New items can go to several children and several days at once; edits change one item.
+export async function saveCareItem(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase, member } = await requireParent();
+  const id = str(formData, "id");
+  const row = careFields(formData);
+  if (!row.title) return { error: "Say what it is, for example Lunch or Bath." };
+  if (!row.at_time) return { error: "Set a time." };
+  if (row.title.length > 80) return { error: "Keep the name under 80 characters." };
+  if ((row.details ?? "").length > 300) return { error: "Keep the details under 300 characters." };
+
+  if (id) {
+    const { error } = await supabase.from("care_items").update(row).eq("id", id);
+    if (error) return { error: "Couldn't save. Please try again." };
+    return done("Saved. Today's list is updated if it's for today.");
+  }
+
+  const children = formData.getAll("child_id").map(String).filter(Boolean);
+  const days = formData.getAll("weekday").map(Number).filter((d) => d >= 1 && d <= 7);
+  if (!children.length) return { error: "Pick at least one child." };
+  if (!days.length) return { error: "Pick at least one day." };
+
+  const rows = children.flatMap((child_id) =>
+    days.map((weekday) => ({ ...row, child_id, weekday, household_id: member.household_id })),
+  );
+  const { error } = await supabase.from("care_items").insert(rows);
+  if (error) return { error: "Couldn't add it. Please try again." };
+  return done(rows.length === 1 ? `${row.title} added.` : `${row.title} added ${rows.length} times.`);
+}
+
+export async function setCareItemActive(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase
+    .from("care_items")
+    .update({ active: formData.get("active") === "true" })
+    .eq("id", str(formData, "id"));
+  done();
+}
+
+export async function deleteCareItem(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.from("care_items").delete().eq("id", str(formData, "id"));
+  done();
+}
+
+export async function copyCareDay(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireParent();
+  const from = Number(formData.get("from"));
+  const to = formData.getAll("to").map(Number).filter((d) => d !== from);
+  if (!to.length) return { error: "Pick the days to copy to." };
+
+  const { data, error } = await supabase.rpc("copy_care_day", {
+    p_from: from,
+    p_to: to,
+    p_child: str(formData, "child_id") || undefined,
+  });
+  if (error) return { error: error.message };
+  return done(`Copied to ${to.length} ${to.length === 1 ? "day" : "days"} (${data ?? 0} items).`);
+}
+
+// Take one of today's items off for the day, or put it back.
+export async function skipCare(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.rpc("skip_care", { p_id: str(formData, "id"), p_skip: formData.get("skip") === "true" });
+  done();
+}
+
+// Care cards and emergency contacts ------------------------------------------------
+
+const CARD_FIELDS = [
+  ["allergies", 500],
+  ["avoid_foods", 500],
+  ["conditions", 500],
+  ["medicines", 500],
+  ["doctor_name", 100],
+  ["doctor_phone", 30],
+  ["hospital", 150],
+  ["blood_group", 10],
+  ["notes", 1000],
+] as const;
+
+export async function saveCareCard(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await requireParent();
+  const child_id = str(formData, "child_id");
+  const card: Record<string, string | null> = {};
+  for (const [field, max] of CARD_FIELDS) {
+    const value = str(formData, field);
+    if (value.length > max) return { error: `That's too long. Keep each box under ${max} characters.` };
+    card[field] = value || null;
+  }
+  const { error } = await supabase.from("care_cards").upsert({ child_id, ...card });
+  if (error) return { error: "Couldn't save the care card. Please try again." };
+  return done("Care card saved. The nanny can see it on their phone.");
+}
+
+export async function saveContact(_: FormState, formData: FormData): Promise<FormState> {
+  const { supabase, member } = await requireParent();
+  const id = str(formData, "id");
+  const row = { name: str(formData, "name"), relation: str(formData, "relation") || null, phone: str(formData, "phone") };
+  if (!row.name || !row.phone) return { error: "Enter a name and a phone number." };
+  if (row.name.length > 80 || row.phone.length > 30 || (row.relation ?? "").length > 60) {
+    return { error: "That's too long." };
+  }
+
+  const { error } = id
+    ? await supabase.from("emergency_contacts").update(row).eq("id", id)
+    : await supabase.from("emergency_contacts").insert({ ...row, household_id: member.household_id });
+  if (error) return { error: "Couldn't save the contact. Please try again." };
+  return done(id ? "Saved." : `${row.name} added.`);
+}
+
+export async function deleteContact(formData: FormData) {
+  const { supabase } = await requireParent();
+  await supabase.from("emergency_contacts").delete().eq("id", str(formData, "id"));
   done();
 }

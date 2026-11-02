@@ -106,8 +106,8 @@ export function PushSetup({ audience }: { audience: "nanny" | "parent" }) {
 
   const why =
     audience === "nanny"
-      ? "PREP sends tomorrow's checklist every evening, reminders before activities, and new tasks from Madam or Oga."
-      : "PREP tells you when everyone is ready, and warns you if prep misses the deadline.";
+      ? "PREP sends reminders for each item on the children's daily schedule, tomorrow's checklist every evening, reminders before activities, and new tasks from Madam or Oga."
+      : "PREP tells you when everyone is ready, warns you if prep misses the deadline or a daily care item isn't ticked by its time, and sends a weekly summary.";
 
   return (
     <div className="space-y-4">

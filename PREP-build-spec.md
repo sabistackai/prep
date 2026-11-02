@@ -18,7 +18,10 @@ Each child has a fixed weekly pattern: uniform on some days, sportswear or nativ
 4. **If prep isn't finished by the deadline**, both parents get a push alert, and the nanny gets a firmer reminder.
 5. **Activity reminders** go to the nanny before each activity, with what to pack.
 6. **Parents can send the nanny one-off tasks** that arrive instantly as push notifications. She marks them done and the parents are notified.
-7. ~~**School notices**: a parent pastes the school's broadcast message, AI reads the date and dress code, the parent confirms, and that day's checklist updates.~~ Dropped on 2026-10-30: PREP uses no AI.
+7. **Daily care schedule** (added 2 Nov 2026): each child has a timed schedule for every day of the week (meals, bath, nap, medicine, homework, bedtime). The nanny is reminded before each item and ticks it off; if it isn't ticked by its time, the parents are told.
+8. **Care cards**: allergies, foods to avoid, medicines, doctor and emergency contacts for each child, readable by the nanny.
+9. **Parent dashboard and weekly summary**: today at a glance, plus how the week went (prep on time, daily care on time, tasks), with a push every Monday morning.
+10. ~~**School notices**: a parent pastes the school's broadcast message, AI reads the date and dress code, the parent confirms, and that day's checklist updates.~~ Dropped on 2026-10-30: PREP uses no AI.
 
 ## 3. Out of scope
 
@@ -129,6 +132,24 @@ Expected AI output:
 - Parent notifications: all ready, activity reminders (on/off)
 
 ---
+
+### 5.12 Daily care schedule (added 2026-11-02)
+- **Schedule:** per child and per weekday (each day of the week has its own schedule): time, type (meal, bath, nap, medicine, homework, play or outing, bedtime, other), name, optional details (the food, the dose), "not on holidays", active on/off. Added under **Schedule → Daily care**; one item can be added to several children and days at once, and a whole day can be copied to other days (replacing them).
+- **Each day:** at the start of the day the schedule is copied into that day's list (`care_log`). Schedule or holiday edits update today's list straight away; items already ticked or skipped stay as they are.
+- **Reminders:** the nanny gets a push **30 minutes before** each item (setting: 0–240). Items due at the same time go out as one push: *"Coming up at 1:30 PM. Ada: Lunch (Jollof rice). Tobi: Lunch (Spaghetti)."*
+- **Late:** if an item isn't ticked by its due time, **both parents** get *"Ada's lunch was due at 1:30 PM and isn't ticked yet."* (setting, on by default) and the nanny gets a firmer push saying the parents have been told. Ticked within the minute it was due counts as on time.
+- **Nanny view:** Today tab, in time order, with large tick boxes (works offline like the prep list) and the children's allergies at the top.
+- **Parent view:** the dashboard shows today's list live; a parent can **skip** an item for the day (it then doesn't count or alert).
+- The one-off meal form under Tasks stays, for a meal that isn't on the schedule.
+
+### 5.13 Care cards (added 2026-11-02)
+- Per child: allergies, foods to avoid, health conditions, medicines, doctor and phone, hospital, blood group, other notes. Household emergency contacts (name, relation, phone).
+- Parents edit them under **Settings → Care cards**. Nannies can read them (Alerts → Care cards, and allergies show on Today) but not change them. Phone numbers are tap-to-call.
+
+### 5.14 Dashboard and weekly summary (added 2026-11-02)
+- The parent home screen is a **Dashboard**: today at a glance (daily care done and late, tonight's prep, open tasks), today's schedule, tonight's prep board, open tasks, and this week's summary.
+- **Weekly summary** (Monday to Sunday, any past week): evening prep on time / late / missed per night, daily care on time / late / not ticked per day and per child, the items most often late, and tasks done on time / late / still open.
+- **Monday push** at 8:00 AM to the parents about the week before (setting, on by default).
 
 ## 6. Tech stack
 
@@ -363,15 +384,15 @@ All times are computed in the household's timezone (`Africa/Lagos`).
 
 ## 10. Screens
 
-**Parent**
-1. **Today**: tonight's prep status (X of Y ready, per child, item by item), open tasks, next activity reminders, any overdue alert.
+**Parent** (tabs: Dashboard, Schedule, Outfits, Tasks, Settings; added 2026-11-02: the Dashboard, Schedule → Daily care, Care cards and the weekly summary)
+1. **Today** (now the Dashboard): tonight's prep status (X of Y ready, per child, item by item), open tasks, next activity reminders, any overdue alert.
 2. **Routine**: the Mon–Sun outfit grid per child.
 3. **Activities**: list and add/edit form.
 4. **Tasks**: create a task, plus open and done lists.
 5. **School notice**: paste box, preview, Apply.
 6. **Settings**: children, outfits and their items, holidays, timings, notification preferences, nannies (add, setup link, remove).
 
-**Nanny** (large tap targets, plain English, 3 tabs)
+**Nanny** (large tap targets, plain English; tabs: Prep, Today, Tasks, Alerts. Today and Care cards added 2026-11-02)
 1. **Prep**: tonight's checklist cards per child, with a Ready badge.
 2. **Tasks**: open tasks with a Done button, then completed ones.
 3. **Alerts**: notification history plus upcoming activities.

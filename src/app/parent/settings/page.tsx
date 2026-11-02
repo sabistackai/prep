@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
   addHoliday,
   addNanny,
@@ -126,6 +127,9 @@ export default async function SettingsPage() {
     <>
       <PageHeader title="Settings" />
       <nav className="mb-6 flex flex-wrap gap-2 text-sm">
+        <Link href="/parent/care" className="rounded-full border border-primary bg-primary-soft px-3 py-1.5 font-semibold text-primary">
+          Care cards
+        </Link>
         {[
           ["children", "Children"],
           ["outfits", "Outfits"],
@@ -150,7 +154,12 @@ export default async function SettingsPage() {
                 <ChildFields child={c} />
                 <SubmitButton variant="secondary">Save</SubmitButton>
               </ActionForm>
-              <ConfirmDelete action={deleteChild} id={c.id} label={`Remove ${c.name} and their routine?`} />
+              <div className="flex flex-wrap items-center gap-x-4">
+                <Link href="/parent/care" className="flex min-h-11 items-center text-sm font-bold text-primary hover:underline">
+                  Care card: allergies, medicines, doctor ›
+                </Link>
+                <ConfirmDelete action={deleteChild} id={c.id} label={`Remove ${c.name} and their routine?`} />
+              </div>
             </Card>
           ))}
           <Card>
@@ -276,6 +285,16 @@ export default async function SettingsPage() {
                       className={`${inputClass} tabular-nums`}
                     />
                   </Field>
+                  <Field label="Daily care reminder" hint="Minutes before each item">
+                    <input
+                      name="care_lead_minutes"
+                      type="number"
+                      min={0}
+                      max={240}
+                      defaultValue={household.care_lead_minutes}
+                      className={`${inputClass} tabular-nums`}
+                    />
+                  </Field>
                 </div>
                 <div className="divide-y divide-border border-y border-border">
                   <Toggle
@@ -287,6 +306,16 @@ export default async function SettingsPage() {
                     name="notify_parents_activities"
                     label="Send me activity reminders too"
                     checked={household.notify_parents_activities}
+                  />
+                  <Toggle
+                    name="notify_parents_care_late"
+                    label="Tell me when a daily care item isn't ticked by its time"
+                    checked={household.notify_parents_care_late}
+                  />
+                  <Toggle
+                    name="notify_parents_weekly"
+                    label="Send me last week's summary on Monday mornings"
+                    checked={household.notify_parents_weekly}
                   />
                 </div>
                 <SubmitButton>Save settings</SubmitButton>

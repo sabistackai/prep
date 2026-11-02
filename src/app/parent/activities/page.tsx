@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { deleteActivity, saveActivity, setActivityActive } from "@/app/parent/actions";
 import { ActionForm, SubmitButton } from "@/components/form";
+import { ScheduleNav } from "@/components/schedule-nav";
 import { Card, Field, inputClass, Mono, PageHeader } from "@/components/ui";
 import { requireParent } from "@/lib/auth";
 import { formatTime, timeInput, WEEKDAYS } from "@/lib/format";
@@ -69,7 +70,8 @@ export default async function ActivitiesPage() {
   if (!kids?.length) {
     return (
       <>
-        <PageHeader title="Activities" />
+        <PageHeader title="Schedule" />
+        <ScheduleNav active="activities" />
         <Card>
           <p className="text-sm text-muted">
             Add the children first.{" "}
@@ -87,7 +89,8 @@ export default async function ActivitiesPage() {
 
   return (
     <>
-      <PageHeader title="Activities" subtitle="The nanny gets a reminder before each one, with what to pack." />
+      <PageHeader title="Schedule" subtitle="Weekly activities. The nanny gets a reminder before each one, with what to pack." />
+      <ScheduleNav active="activities" />
 
       <div className="space-y-5">
         {days.map((d) => (
