@@ -43,8 +43,11 @@ const png = (svg, file) => sharp(Buffer.from(svg)).png().toFile(join(out, file))
 writeFileSync(join(out, "brand", "mark-light.svg"), standalone(markLight));
 writeFileSync(join(out, "brand", "mark-dark.svg"), standalone(markDark));
 
-await png(onIndigo(192, 0.54, markDark), "icon-192.png");
-await png(onIndigo(512, 0.54, markDark), "icon-512.png");
+// Android builds the PWA splash screen from these "any" icons, so they get
+// rounded corners (radius 25% of the size). The maskable icon stays full-bleed
+// because Android crops it to the launcher shape itself.
+await png(onIndigo(192, 0.54, markDark, 192 * 0.25), "icon-192.png");
+await png(onIndigo(512, 0.54, markDark, 512 * 0.25), "icon-512.png");
 await png(onIndigo(512, 0.44, markDark), "maskable-512.png");
 await png(onIndigo(180, 0.54, markDark), "apple-touch-icon.png");
 
