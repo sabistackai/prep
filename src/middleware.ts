@@ -24,9 +24,11 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims checks the login token on this server (the project signs tokens with
+  // asymmetric keys), so there's no round trip to Supabase Auth on every request.
+  // It still refreshes an expired session and writes the new cookies.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims.sub;
 
   const path = request.nextUrl.pathname;
   const isProtected = path.startsWith("/parent") || (path.startsWith("/nanny") && path !== "/nanny/login");

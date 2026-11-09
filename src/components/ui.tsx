@@ -36,3 +36,17 @@ export function PageHeader({ title, subtitle }: { title: string; subtitle?: stri
 export function Mono({ children }: { children: ReactNode }) {
   return <span className="font-bold tabular-nums">{children}</span>;
 }
+
+// Shown straight away while a tab's data loads, so a tap never looks frozen.
+export function PageLoading() {
+  return (
+    <div aria-busy="true" aria-label="Loading" className="animate-pulse motion-reduce:animate-none">
+      <div className="mb-5 h-9 w-40 rounded-lg bg-border" />
+      <div className="space-y-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-24 rounded-[16px] border border-border bg-surface" />
+        ))}
+      </div>
+    </div>
+  );
+}

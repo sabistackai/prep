@@ -6,9 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 // The signed-in user and their member row (null if signed out or not yet in a household).
 export const getSession = cache(async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Verified on this server against the project's signing keys: no Auth round trip.
+  const { data } = await supabase.auth.getClaims();
+  const user = data ? { id: data.claims.sub } : null;
   if (!user) return { supabase, user: null, member: null };
 
   const { data: member } = await supabase.from("members").select("*").eq("user_id", user.id).maybeSingle();
